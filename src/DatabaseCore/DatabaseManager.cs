@@ -1,0 +1,115 @@
+using LiteDB;
+
+namespace DatabaseCore;
+
+/// <summary>
+/// 数据库管理器
+/// </summary>
+public partial class DatabaseManager
+{
+    /// <summary>
+    /// 静态锁，用于确保单线程操作
+    /// </summary>
+    private static readonly object Lock = new ();
+    
+    /// <summary>
+    /// 单例实例
+    /// </summary>
+    private static DatabaseManager? _instance;
+    
+    /// <summary>
+    /// 数据库连接
+    /// </summary>
+    private readonly LiteDatabase _db;
+    
+    /// <summary>
+    /// 获取单例实例
+    /// </summary>
+    public static DatabaseManager Instance => _instance ??= new DatabaseManager();
+
+    /// <summary>
+    /// 短信数据库表名
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    private const string SMSTableName = "sms";
+
+    /// <summary>
+    /// 私有构造函数
+    /// </summary>
+    private DatabaseManager()
+    {
+        // 连接数据库
+        var connectionString = new ConnectionString(DatabaseCoreConfig.LiteDbFilePath)
+        {
+            Connection = ConnectionType.Direct // 直接模式，适合单进程
+        };
+        _db = new LiteDatabase(connectionString);
+        
+        // 创建数据表
+        _db.GetCollection<SMSDatabaseData>(SMSTableName);
+    }
+    
+    /// <summary>
+    /// 执行数据库操作（同步锁）
+    /// </summary>
+    /// <param name="operation"></param>
+    /// <typeparam name="T"></typeparam>
+    /// <returns></returns>
+    /// <exception cref="InvalidOperationException"></exception>
+    private T Execute<T>(Func<LiteDatabase, T> operation)
+    {
+        lock (Lock)
+        {
+            try
+            {
+                return operation(_db);
+            }
+            catch (Exception ex)
+            {
+                // 日志记录建议在这里添加
+                throw new InvalidOperationException("数据库操作失败", ex);
+            }
+        }
+    }
+
+    /// <summary>
+    /// 执行数据库操作（同步锁）
+    /// </summary>
+    /// <param name="operation"></param>
+    /// <exception cref="InvalidOperationException"></exception>
+    private void Execute(Action<LiteDatabase> operation)
+    {
+        lock (Lock)
+        {
+            try
+            {
+                operation(_db);
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("数据库操作失败", ex);
+            }
+        }
+    }
+    
+    /// <summary>
+    /// 添加短信
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    public bool AddSMS(string content)
+    {
+        try
+        {
+            Execute(db =>
+            {
+                var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                col.Insert(new SMSDatabaseData(content));
+            });
+            return true; // 插入成功
+        }
+        catch (InvalidOperationException)
+        {
+            return false; // 插入失败
+        }
+    }
+}

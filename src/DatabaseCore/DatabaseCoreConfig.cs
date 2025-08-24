@@ -14,4 +14,9 @@ public class DatabaseCoreConfig
     /// 管理员数据文件路径
     /// </summary>
     public const string AdminDataFilePath = "admin.json";
+    
+    /// <summary>
+    /// 网络加密密钥文件路径
+    /// </summary>
+    public const string NetworkEncryptionKeyFilePath = "network_encryption_key.txt";
 }

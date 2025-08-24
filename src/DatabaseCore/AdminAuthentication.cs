@@ -58,6 +58,8 @@ public class AdminAuthentication
     /// <summary>
     /// 初始化管理员账户
     /// </summary>
+    /// <param name="username">用户名</param>
+    /// <param name="password">密码</param>
     public void InitAdminAccount(string username, string password)
     {
         // 计算密码的 SHA-256 哈希值

@@ -8,5 +8,10 @@ public class DatabaseCoreConfig
     /// <summary>
     /// 数据库文件路径
     /// </summary>
-    public static string LiteDbFilePath = "data.db";
+    public const string LiteDbFilePath = "data.db";
+    
+    /// <summary>
+    /// 管理员数据文件路径
+    /// </summary>
+    public const string AdminDataFilePath = "admin.json";
 }

@@ -17,13 +17,14 @@ public partial class DatabaseManager
             return Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
-            
-                // 按最后访问时间升序排列（间隔最长的在前）
+
+                // 按最后访问时间升序排列，且仅包含启用的记录
                 var smsList = col.Query()
+                    .Where(x => x.IsEnable == true) // 添加筛选条件
                     .OrderBy(x => x.LastAccessTime)
                     .Limit(count)
                     .ToList();
-            
+
                 // 更新访问次数和最后访问时间
                 foreach (var sms in smsList)
                 {
@@ -31,7 +32,7 @@ public partial class DatabaseManager
                     sms.LastAccessTime = DateTime.Now;
                     col.Update(sms);
                 }
-                
+
                 // 返回结果
                 return smsList.Count == 0 ? null : smsList;
             });

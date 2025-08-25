@@ -21,6 +21,11 @@ public class SMSDatabaseData(string content)
     public string Content { get; set; } = content;
     
     /// <summary>
+    /// 是否启用
+    /// </summary>
+    public bool IsEnable { get; set; } = true;
+    
+    /// <summary>
     /// 访问次数
     /// </summary>
     public int AccessCount { get; set; } = 0;

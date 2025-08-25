@@ -1,271 +1,515 @@
 @page "/Home"
+@using APIModes.RequestModes
+@using APIModes.ReturnModes
+@using DatabaseCore
 
-<div style="background-image: url('images/background.png'); 
-            background-size: cover; 
-            background-position: center; 
-            height: 100vh; 
-            padding: 20px;
-            display: flex;
-            flex-direction: column;">
+@inject IJSRuntime JsRuntime
+@inject HttpClient Http
+
+<div class="home-container">
+    <!-- 顶部提示框 -->
+    @if (showToast)
+    {
+        <div class="home-toast-container @(toastType)">
+            <div class="home-toast-content">
+                <span class="home-toast-message">@toastMessage</span>
+                <button class="home-toast-close" @onclick="CloseToast">&times;</button>
+            </div>
+        </div>
+    }
+
+    <!-- 加载弹窗 -->
+    @if (isLoading)
+    {
+        <div class="home-loading-overlay">
+            <div class="home-loading-content">
+                <div class="home-loading-spinner"></div>
+                <p>正在加载数据...</p>
+            </div>
+        </div>
+    }
 
     <!-- 顶部导航栏 -->
-    <div style="background: rgba(255, 255, 255, 0.85);
-            border-radius: 15px;
-            padding: 0 30px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: none;
-            flex-shrink: 0;
-            border: 1px solid rgba(255, 255, 255, 0.4);">
-        <div style="display: flex; justify-content: space-between; align-items: center; height: 60px;">
-            <b style="font-size: 20px">短信解码管理面板</b>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <img src="images/head.jpg" alt="管理员头像"
-                     style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ccc;"/>
-                <span>Hello! admin.</span>
+    <div class="home-navbar">
+        <div class="home-navbar-content">
+            <b class="home-title">接码分配管理面板</b>
+            <div class="home-user-info">
+                <img src="images/head.jpg" alt="管理员头像" class="home-avatar"/>
+                <span class="home-welcome">Hello! <strong>@_username</strong></span>
             </div>
         </div>
     </div>
 
     <!-- 中部面板 -->
-    <div style="flex: 1; display: flex; margin: 20px 0; gap: 20px;">
-        
+    <div class="home-main-content">
         <!-- 左侧两个卡片 -->
-<div style="width: 30%; display: flex; flex-direction: column; gap: 20px;">
-    <div style="background: rgba(255, 255, 255, 0.85);
-                border-radius: 15px;
-                padding: 20px;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                flex: 1;
-                border: 1px solid rgba(255, 255, 255, 0.4);">
-        <h4>统计概览</h4>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
-            <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                <div style="font-size: 24px; font-weight: bold; color: #007bff;">128</div>
-                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">总请求数</div>
+        <div class="home-left-column home-scrollbar">
+            <div class="home-card home-stats-card">
+                <h4 class="home-card-title">统计概览</h4>
+                <div class="home-stats-grid">
+                    <div class="home-stat-item">
+                        <div class="home-stat-value home-stat-primary">128</div>
+                        <div class="home-stat-label">总请求数</div>
+                    </div>
+                    <div class="home-stat-item">
+                        <div class="home-stat-value home-stat-success">96</div>
+                        <div class="home-stat-label">接码次数</div>
+                    </div>
+                    <div class="home-stat-item">
+                        <div class="home-stat-value home-stat-danger">32</div>
+                        <div class="home-stat-label">禁用项目</div>
+                    </div>
+                    <div class="home-stat-item">
+                        <div class="home-stat-value home-stat-warning">24</div>
+                        <div class="home-stat-label">数据总量</div>
+                    </div>
+                </div>
+                <div class="home-progress-container">
+                    <div class="home-progress-info">
+                        <span class="home-progress-label">系统已运行</span>
+                        <span class="home-progress-percent">@uptimeString</span>
+                    </div>
+                    <div class="home-uptime-display">
+                        <div class="home-uptime-item">
+                            <span class="home-uptime-value">@uptime.Days</span>
+                            <span class="home-uptime-label">天</span>
+                        </div>
+                        <div class="home-uptime-item">
+                            <span class="home-uptime-value">@uptime.Hours</span>
+                            <span class="home-uptime-label">时</span>
+                        </div>
+                        <div class="home-uptime-item">
+                            <span class="home-uptime-value">@uptime.Minutes</span>
+                            <span class="home-uptime-label">分</span>
+                        </div>
+                        <div class="home-uptime-item">
+                            <span class="home-uptime-value">@uptime.Seconds</span>
+                            <span class="home-uptime-label">秒</span>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                <div style="font-size: 24px; font-weight: bold; color: #28a745;">96</div>
-                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">接码次数</div>
-            </div>
-            <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                <div style="font-size: 24px; font-weight: bold; color: #dc3545;">32</div>
-                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">禁用项目</div>
-            </div>
-            <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
-                <div style="font-size: 24px; font-weight: bold; color: #ffc107;">24</div>
-                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">数据总量</div>
-            </div>
-        </div>
-        <div style="margin-top: 20px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                <span style="font-size: 14px;">项目启用率</span>
-                <span style="font-size: 14px; font-weight: bold;">75%</span>
-            </div>
-            <div style="height: 10px; background: #e9ecef; border-radius: 5px; overflow: hidden;">
-                <div style="width: 75%; height: 100%; background: #28a745; border-radius: 5px;"></div>
-            </div>
-        </div>
-    </div>
 
-    <!-- 系统配置卡片 -->
-<div style="background: rgba(255, 255, 255, 0.85);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            flex: 1;
-            border: 1px solid rgba(255, 255, 255, 0.4);">
-    <h4>系统配置</h4>
-    <div style="margin-top: 15px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee;">
-            <span>自动刷新数据</span>
-            <div style="position: relative; display: inline-block; width: 50px; height: 24px;">
-                <input type="checkbox" id="autoRefresh" style="opacity: 0; width: 0; height: 0;"/>
-                <label for="autoRefresh" 
-                       style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; 
-                              background-color: #ccc; border-radius: 24px; transition: .4s;
-                              @(autoRefresh ? "background-color: #2196F3;" : "")">
-                    <span style="position: absolute; content: ''; height: 16px; width: 16px; left: 4px; bottom: 4px; 
-                                 background-color: white; border-radius: 50%; transition: .4s;
-                                 @(autoRefresh ? "transform: translateX(26px);" : "")">
-                    </span>
-                </label>
+            <!-- 系统配置卡片 -->
+            <div class="home-card home-config-card">
+                <h4 class="home-card-title">系统配置</h4>
+                <div class="home-config-content">
+                    <div class="home-config-item">
+                        <span class="home-config-label">接码访问</span>
+                        <div class="home-toggle-switch">
+                            <input type="checkbox" id="autoRefresh" class="home-toggle-input" checked="@autoRefresh" />
+                            <label for="autoRefresh" class="home-toggle-label @(autoRefresh ? "home-toggle-checked" : "")">
+                                <span class="home-toggle-slider @(autoRefresh ? "home-toggle-slider-checked" : "")"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="home-config-item">
+                        <span class="home-config-label">接码密钥</span>
+                        <input type="password" class="home-input-number" style="width: 200px" value="@maxConcurrent" min="1" max="100" @onchange="e => maxConcurrent = int.Parse(e.Value.ToString())"/>
+                    </div>
+
+                    <div class="home-config-actions">
+                        <button class="home-btn home-btn-default" style="background-color: #0c63e4; color: white">刷新</button>
+                        <button class="home-btn home-btn-primary" @onclick="SaveConfig">保存</button>
+                    </div>
+                </div>
             </div>
         </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee;">
-            <span>启用通知</span>
-            <div style="position: relative; display: inline-block; width: 50px; height: 24px;">
-                <input type="checkbox" id="enableNotifications" style="opacity: 0; width: 0; height: 0;"/>
-                <label for="enableNotifications" 
-                       style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; 
-                              background-color: #ccc; border-radius: 24px; transition: .4s;
-                              @(enableNotifications ? "background-color: #2196F3;" : "")">
-                    <span style="position: absolute; content: ''; height: 16px; width: 16px; left: 4px; bottom: 4px; 
-                                 background-color: white; border-radius: 50%; transition: .4s;
-                                 @(enableNotifications ? "transform: translateX(26px);" : "")">
-                    </span>
-                </label>
-            </div>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee;">
-            <span>数据保留天数</span>
-            <select style="padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
-                <option>@dataRetentionDays</option>
-                <option value="7">7天</option>
-                <option value="30">30天</option>
-                <option value="90">90天</option>
-                <option value="365">365天</option>
-            </select>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
-            <span>最大并发数</span>
-            <input type="number" value="@maxConcurrent" 
-                   style="width: 80px; padding: 5px; border-radius: 5px; border: 1px solid #ccc; text-align: center;"
-                   min="1" max="100"/>
-        </div>
-        
-        <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
-            <button style="padding: 8px 15px; border-radius: 5px; border: 1px solid #ccc; background: white;">
-                重置
-            </button>
-            <button style="padding: 8px 15px; border-radius: 5px; border: 1px solid #28a745; background: #28a745; color: white;">
-                保存
-            </button>
-        </div>
-    </div>
-</div>
-
-</div>
-
 
         <!-- 右侧大卡片 -->
-        <div style="width: 70%; background: rgba(255, 255, 255, 0.85);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            display: flex;
-            flex-direction: column;">
-
-            <!-- 顶部多选操作栏 -->
-            <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-                <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">全选
-                </button>
-                <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">删除
-                </button>
-                <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">导出
-                </button>
-                <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">刷新
-                </button>
-            </div>
-
-            <!-- 表格区域 -->
-            <div style="flex: 1; overflow: auto;">
-                <table style="width: 100%; border-collapse: collapse; border-radius: 8px;">
-                    <thead>
-                    <tr style="background: rgba(0, 0, 0, 0.05);">
-                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
-                            <input type="checkbox"/>
-                        </th>
-                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">ID</th>
-                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">名称</th>
-                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">状态</th>
-                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">操作</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @for (int i = 1; i <= 10; i++)
-                    {
-                    <tr style="border-bottom: 1px solid #eee;">
-                        <td style="padding: 10px;">
-                            <input type="checkbox"/>
-                        </td>
-                        <td style="padding: 10px;">@i</td>
-                        <td style="padding: 10px;">项目 @i</td>
-                        <td style="padding: 10px;">
-                            <span
-                                style="padding: 3px 8px; border-radius: 3px; background: @(i % 2 == 0 ? "#d4edda" : "#f8d7da"); color: @(i % 2 == 0 ? "#155724" : "#721c24");">
-                                @(i % 2 == 0 ? "启用" : "禁用")
-                            </span>
-                        </td>
-                        <td style="padding: 10px;">
-                            <button
-                                style="padding: 3px 8px; border-radius: 3px; border: 1px solid #ccc; background: white; margin-right: 5px;">
-                                编辑
-                            </button>
-                            <button
-                                style="padding: 3px 8px; border-radius: 3px; border: 1px solid #ccc; background: white;">
-                                详情
-                            </button>
-                        </td>
-                    </tr>
-                    }
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- 底部翻页元素 -->
-            <div
-                style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; flex-wrap: wrap; gap: 10px;">
-                <div style="font-size: 14px;">显示 1 到 10 项，共 50 项</div>
-                <div style="display: flex; gap: 5px;">
-                    <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">
-                        &laquo;
-                    </button>
-                    <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">
-                        1
-                    </button>
-                    <button
-                        style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white; background: #007bff; color: white;">
-                        2
-                    </button>
-                    <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">
-                        3
-                    </button>
-                    <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">
-                        4
-                    </button>
-                    <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">
-                        5
-                    </button>
-                    <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">
-                        &raquo;
-                    </button>
+        <div class="home-right-column">
+            <div class="home-card home-table-card">
+                <!-- 顶部多选操作栏 -->
+                <div class="home-table-actions">
+                    <button class="home-btn home-btn-default">禁用</button>
+                    <button class="home-btn home-btn-default">启用</button>
+                    <button class="home-btn home-btn-default">导出</button>
+                    <button class="home-btn home-btn-default" style="background-color: #bb2d3b; color: white">删除</button>
+                    <button class="home-btn home-btn-default" style="background-color: #0c63e4; color: white">刷新</button>
+    
+                    <!-- 添加 style="margin-left: auto" 到第一个靠右的按钮 -->
+                    <button class="home-btn home-btn-default" style="background-color: #bb2d3b; color: white; margin-left: auto;">删除所有</button>
+                    <button class="home-btn home-btn-default" style="background-color: #0c63e4; color: white">导出所有</button>
+                    <button class="home-btn home-btn-default" style="background-color: #0c63e4; color: white">导入数据</button>
                 </div>
-                <div style="display: flex; align-items: center; gap: 5px;">
-                    <span>每页</span>
-                    <select style="padding: 3px; border-radius: 3px; border: 1px solid #ccc;">
-                        <option>10</option>
-                        <option>20</option>
-                        <option>50</option>
-                    </select>
-                    <span>项</span>
+                
+                <!-- 表格区域 -->
+                <div class="home-table-container">
+                    <table class="home-table">
+                        <thead class="home-table-header">
+                        <tr>
+                            <th class="home-table-cell">
+                                <input type="checkbox"
+                                       class="home-checkbox"
+                                       checked="@_selectAll"
+                                       @onchange="HandleSelectAllChanged" />
+                            </th>
+                            <th class="home-table-cell">内容</th>
+                            <th class="home-table-cell">状态</th>
+                            <th class="home-table-cell">请求次数</th>
+                            <th class="home-table-cell">最后请求时间</th>
+                            <th class="home-table-cell">创建时间</th>
+                        </tr>
+                        </thead>
+                        <tbody class="home-table-body">
+                        @foreach (var item in items)
+                        {
+                            <tr class="home-table-row">
+                                <td class="home-table-cell">
+                                    <input type="checkbox"
+                                           class="home-checkbox"
+                                           @bind="item.IsSelected" />
+                                </td>
+                                <td class="home-table-cell">@item.Content</td>
+                                <td class="home-table-cell">
+                                    <span class="home-status @(item.IsEnable ? "home-status-enabled" : "home-status-disabled")">
+                                        @(item.IsEnable ? "启用" : "禁用")
+                                    </span>
+                                </td>
+                                <td class="home-table-cell">@item.AccessCount</td>
+                                <td class="home-table-cell">@item.LastAccessTime.ToString("yyyy-MM-dd HH:mm:ss:fff")</td>
+                                <td class="home-table-cell">@item.CreateTime.ToString("yyyy-MM-dd HH:mm:ss:fff")</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- 底部翻页元素 -->
+                <div class="home-pagination">
+                    <div class="home-pagination-info">显示 @_miniNumber 到 @_maxNumber 项，共 @_smsTotal 项</div>
+                    <div class="home-pagination-controls">
+                        <!-- 上一页按钮 -->
+                        <button class="home-btn home-btn-default home-pagination-btn"
+                                @onclick="() => GoToPage(CurrentPage - 1)"
+                                disabled="@(CurrentPage <= 1)">
+                            &laquo;
+                        </button>
+
+                        @* 生成页码按钮 *@ 
+                        @foreach (var item in GetPaginationItems())
+                        {
+                            if (item.IsEllipsis)
+                            {
+                                <span class="home-pagination-ellipsis">...</span>
+                            }
+                            else
+                            {
+                                <button class="@(
+                                               "home-btn home-btn-default home-pagination-btn" +
+                                               (item.Page == CurrentPage ? " home-pagination-active" : "")
+                                               )"
+                                        @onclick="() => GoToPage(item.Page)">
+                                    @item.Page
+                                </button>
+                            }
+                        }
+
+                        <!-- 下一页按钮 -->
+                        <button class="home-btn home-btn-default home-pagination-btn"
+                                @onclick="() => GoToPage(CurrentPage + 1)"
+                                disabled="@(CurrentPage >= TotalPages)">
+                            &raquo;
+                        </button>
+                    </div>
+                    <div class="home-pagination-size">
+                        <span>每页</span>
+                        <select class="home-select home-select-small" @bind="TablePageSize" @bind:after="OnSelectionTablePageSizeChanged">
+                            @foreach (var value in new[] { 20, 50, 100, 250, 500, 1000, 2500, 5000 })
+                            {
+                                <option value="@value">@value</option>
+                            }
+                        </select>
+                        <span>项</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- 底部页脚 -->
-    <div style="margin: 0 -20px -20px -20px; 
-                width: calc(100% + 40px);
-                background: rgba(0, 0, 0, 0.7);
-                color: white;
-                font-weight: bold;
-                text-align: center;
-                padding: 15px 30px;
-                border-bottom-left-radius: 15px;
-                border-bottom-right-radius: 15px;
-                border: 1px solid rgba(255, 255, 255, 0.3);">
-        <p style="margin: 0; font-size: 14px;">短信解码分配系统 &copy; 2025 LaoMaoMAG. All rights reserved.</p>
+    <div class="home-footer">
+        <div class="home-footer-content">
+            <div class="home-footer-info">
+                <p class="home-footer-text">通用接码分配系统</p>
+            </div>
+            <div class="home-footer-links">
+                <a href="#" class="home-footer-link">帮助文档</a>
+                <a href="#" class="home-footer-link">技术支持</a>
+                <a href="https://zhan-hun.com/" class="home-footer-link">斩魂中控台</a>
+            </div>
+            <div class="home-footer-copyright">
+                <p class="home-footer-text">&copy; 2025 LaoMaoMAG. All rights reserved.</p>
+            </div>
+        </div>
     </div>
 </div>
 
 @code {
+    private int TablePageSize { get; set; } = 20;
+
+    private async Task OnSelectionTablePageSizeChanged()
+    {
+        if (CurrentPage == 1)
+        {
+            isLoading = true;
+            StateHasChanged();
+            await RefreshTable(1);
+            isLoading = false;
+            StateHasChanged();
+            return;
+        }
+        await GoToPage(1);
+    }
+    
+    
+    [Parameter] public int TotalPages { get; set; }
+    [Parameter] public int CurrentPage { get; set; } = 1;
+
+    [Parameter] public EventCallback<int> CurrentPageChanged { get; set; }
+    [Parameter] public EventCallback OnPageChanged { get; set; }
+
+    // 显示当前页前后各几个页码
+    private int SiblingCount = 2;
+    // 两端始终显示的页码数（如第1页和最后1页）
+    private int BoundaryCount = 2;
+
+    private record PaginationItem(int Page, bool IsEllipsis);
+
+    private IEnumerable<PaginationItem> GetPaginationItems()
+    {
+        var pages = new List<PaginationItem>();
+
+        int start = Math.Max(1, CurrentPage - SiblingCount);
+        int end = Math.Min(TotalPages, CurrentPage + SiblingCount);
+
+        // 添加第一页
+        if (start > 1)
+        {
+            pages.Add(new PaginationItem(1, false));
+            if (start > 2)
+                pages.Add(new PaginationItem(-1, true)); // 用 -1 表示省略号，IsEllipsis=true
+        }
+
+        // 添加中间页码
+        for (int i = start; i <= end; i++)
+        {
+            pages.Add(new PaginationItem(i, false));
+        }
+
+        // 添加最后一页
+        if (end < TotalPages)
+        {
+            if (end < TotalPages - 1)
+                pages.Add(new PaginationItem(-1, true));
+            pages.Add(new PaginationItem(TotalPages, false));
+        }
+
+        return pages;
+    }
+
+    private async Task GoToPage(int page)
+    {
+        isLoading = true;
+        StateHasChanged();
+        
+        if (page < 1 || page > TotalPages || page == CurrentPage) return;
+
+        CurrentPage = page;
+
+        if (CurrentPageChanged.HasDelegate)
+            await CurrentPageChanged.InvokeAsync(page);
+
+        if (OnPageChanged.HasDelegate)
+            await OnPageChanged.InvokeAsync();
+
+        await RefreshTable(page);
+        
+        isLoading = false;
+        StateHasChanged();
+    }
+    
+    
+    
+    private async Task RefreshTable(int pageIndex)
+    {
+        var url = $"{Config.WebAPIServer}/AdminRequest/GetSMSPageData?pageIndex={pageIndex}&pageSize={TablePageSize}";
+        var response = await Http.PostAsJsonAsync(url, new AdminRequestDataBase
+        {
+            Username = _username,
+            Password = _password
+        });
+            
+        if (response.IsSuccessStatusCode)
+        {
+            var jsonData = await response.Content.ReadFromJsonAsync<AdminReturnSMSPageData>();
+            
+            _smsTotal = (int)jsonData!.SMSTotal!;
+            _miniNumber = (int)jsonData.MiniNumber!;
+            _maxNumber = (int)jsonData.MaxNumber!;
+            TotalPages = (int)jsonData.TotalPages!;
+
+            
+            items.Clear();
+            
+            foreach (var data in jsonData.SMSList)
+            {
+                items.Add(new ItemData(data.Content)
+                {
+                    Id = data.Id,
+                    IsEnable = data.IsEnable,
+                    AccessCount = data.AccessCount,
+                    LastAccessTime = data.LastAccessTime,
+                    CreateTime = data.CreateTime,
+                });
+            }
+            
+            OnInitialized();
+        }
+        else 
+            ShowToast($"获取分页数据时 HTTP 状态码错误：{response.StatusCode}！", "error");
+    }
+    
+    
+    
+    
+    // 数据列表
+    private List<ItemData> items = new();
+
+    // 示例：全选/取消全选
+    private bool _selectAll;
+    
+    private async Task HandleSelectAllChanged(ChangeEventArgs e)
+    {
+        if (e.Value is bool value)
+        {
+            _selectAll = value;
+        }
+        // 执行全选逻辑
+        ToggleSelectAll();
+    }
+
+    private void ToggleSelectAll()
+    {
+        foreach (var item in items)
+        {
+            item.IsSelected = _selectAll;
+        }
+    }
+    
+    
+    public class ItemData(string content) : SMSDatabaseData(content)
+    {
+       public bool IsSelected { get; set; } = false;
+    }
+    
+    
+    /// <summary>
+    /// 登录用户名
+    /// </summary>
+    private string _username = "";
+    
+    /// <summary>
+    /// 登录密码
+    /// </summary>
+    private string _password = "";
+    
+    private int _smsTotal = 0;
+    
+    private int _miniNumber = 0;
+    
+    private int _maxNumber = 0;
+    
+    /// <summary>
+    /// 初始化方法
+    /// </summary>
+    protected override async Task OnInitializedAsync()
+    {
+        isLoading = true;
+        StateHasChanged();
+        
+        var cookieService = new CookieService(JsRuntime);
+        _username = await cookieService.GetCookie("username");
+        _password = await cookieService.GetCookie("password");
+
+        await RefreshTable(1);
+        
+        isLoading = false;
+        StateHasChanged();
+    }
+    
+    
+    //====================================
     private bool autoRefresh = true;
     private bool enableNotifications = false;
     private int dataRetentionDays = 30;
     private int maxConcurrent = 10;
+    private bool isLoading = false;
+    
+    // 提示框相关变量
+    private bool showToast = false;
+    private string toastMessage = "";
+    private string toastType = "info"; // success, error, warning, info
+    
+    // 运行时长统计相关变量
+    private DateTime startTime = DateTime.Now;
+    private TimeSpan uptime = TimeSpan.Zero;
+    private string uptimeString = "00:00:00";
+    private Timer uptimeTimer;
+    
+    private async Task SaveConfig()
+    {
+        // 模拟保存配置过程
+        isLoading = true;
+        StateHasChanged();
+        await Task.Delay(800);
+        isLoading = false;
+        
+        // 显示成功提示
+        ShowToast("配置保存成功！", "success");
+        StateHasChanged();
+    }
+    
+    private void ResetConfig()
+    {
+        // 重置配置
+        autoRefresh = true;
+        enableNotifications = false;
+        dataRetentionDays = 30;
+        maxConcurrent = 10;
+        
+        // 显示提示
+        ShowToast("配置已重置", "info");
+        StateHasChanged();
+    }
+    
+    private void ShowToast(string message, string type)
+    {
+        toastMessage = message;
+        toastType = type;
+        showToast = true;
+        StateHasChanged();
+        
+        // 3秒后自动关闭
+        Task.Delay(3000).ContinueWith(_ => 
+        {
+            showToast = false;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+    
+    private void CloseToast()
+    {
+        showToast = false;
+        StateHasChanged();
+    }
+    
+    // 更新运行时长
+    private void UpdateUptime(object state)
+    {
+        uptime = DateTime.Now - startTime;
+        uptimeString = $"{uptime.Days}天 {uptime.Hours}小时 {uptime.Minutes}分钟 {uptime.Seconds}秒";
+        InvokeAsync(StateHasChanged);
+    }
 }

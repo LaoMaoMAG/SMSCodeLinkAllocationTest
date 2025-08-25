@@ -75,7 +75,7 @@ public partial class DatabaseManager
     {
         try
         {
-            Execute(db =>
+            return Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
                 col.DeleteAll();
@@ -100,16 +100,84 @@ public partial class DatabaseManager
     {
         try
         {
-            Execute(db =>
+            return Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
-                return col.FindAll().Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+                var data = col.Find(x => true)
+                    .Skip((pageIndex - 1) * pageSize)
+                    .Take(pageSize)
+                    .ToList();
+                return data;
             });
             return null;
         }
         catch (InvalidOperationException)
         {
             return null;
+        }
+    }
+    
+    /// <summary>
+    /// 获取短信总数
+    /// </summary>
+    /// <returns></returns>
+    // ReSharper disable once InconsistentNaming
+    public int GetSMSTotal()
+    {
+        try
+        {
+            return Execute(db =>
+            {
+                var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                return col.Count();
+            });
+            return 0;
+        }
+        catch (InvalidOperationException)
+        {
+            return 0;
+        }
+    }
+
+    /// <summary>
+    /// 获取访问总数
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    public int GetAccessSMSTotal()
+    {
+        try
+        {
+            Execute(db =>
+            {
+                var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                return col.FindAll().Sum(x => x.AccessCount);
+            });
+            return 0;
+        }
+        catch (InvalidOperationException)
+        {
+            return 0;
+        }
+    }
+    
+    /// <summary>
+    /// 获取启用短信总数
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    public int GetEnableSMSCount()
+    {
+        try
+        {
+            Execute(db =>
+            {
+                var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                return col.FindAll().Count(x => x.IsEnable);
+            });
+            return 0;
+        }
+        catch (InvalidOperationException)
+        {
+            return 0;
         }
     }
 }

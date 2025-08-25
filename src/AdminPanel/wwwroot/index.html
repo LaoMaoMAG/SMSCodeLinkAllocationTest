@@ -1,32 +1,217 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-CN">
 
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AdminPanel</title>
+    <title>短信接码-管理面板</title>
     <base href="/" />
     <link rel="stylesheet" href="css/bootstrap/bootstrap.min.css" />
     <link rel="stylesheet" href="css/app.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="AdminPanel.styles.css" rel="stylesheet" />
+    <script src="javascript/cookie_service.js"></script>
+    <style>
+        /* 现代化加载界面样式 */
+        .loading-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            z-index: 9999;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loading-spinner {
+            width: 120px;
+            height: 120px;
+            position: relative;
+            margin-bottom: 2rem;
+        }
+
+        .loading-spinner div {
+            position: absolute;
+            border-radius: 50%;
+            animation: loading-spinner 2s cubic-bezier(0.68, -0.55, 0.265, 1.55) infinite;
+            transform-origin: center center;
+        }
+
+        .loading-spinner div:nth-child(1) {
+            width: 100%;
+            height: 100%;
+            border: 6px solid rgba(255, 255, 255, 0.2);
+            border-top-color: #ffffff;
+            animation-duration: 1.8s;
+        }
+
+        .loading-spinner div:nth-child(2) {
+            width: 75%;
+            height: 75%;
+            top: 12.5%;
+            left: 12.5%;
+            border: 5px solid transparent;
+            border-top-color: #ffeb3b;
+            animation-duration: 1.4s;
+            animation-direction: reverse;
+        }
+
+        .loading-spinner div:nth-child(3) {
+            width: 50%;
+            height: 50%;
+            top: 25%;
+            left: 25%;
+            border: 4px solid transparent;
+            border-top-color: #4caf50;
+            animation-duration: 1s;
+        }
+
+        .loading-spinner div:nth-child(4) {
+            width: 25%;
+            height: 25%;
+            top: 37.5%;
+            left: 37.5%;
+            border: 3px solid transparent;
+            border-top-color: #f44336;
+            animation-duration: 0.6s;
+            animation-direction: reverse;
+        }
+
+        .loading-text {
+            color: white;
+            font-family: 'Microsoft YaHei', '微软雅黑', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 2rem;
+            font-weight: 300;
+            letter-spacing: 2px;
+            text-align: center;
+            margin-top: 1rem;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .loading-subtext {
+            color: rgba(255, 255, 255, 0.9);
+            font-family: 'Microsoft YaHei', '微软雅黑', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-size: 1.2rem;
+            font-weight: 300;
+            margin-top: 0.8rem;
+            animation: pulse 1.5s infinite;
+        }
+
+        .loading-dots {
+            display: inline-block;
+            width: 20px;
+            text-align: left;
+            font-weight: bold;
+        }
+
+        @keyframes loading-spinner {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 0.6;
+            }
+            50% {
+                opacity: 1;
+            }
+            100% {
+                opacity: 0.6;
+            }
+        }
+
+        /* 错误界面美化 */
+        #blazor-error-ui {
+            background: #fff;
+            bottom: 0;
+            box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
+            display: none;
+            left: 0;
+            padding: 0.6rem 1.25rem 0.7rem 1.25rem;
+            position: fixed;
+            width: 100%;
+            z-index: 1000;
+            border-top: 1px solid #e5e5e5;
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            color: white;
+            text-align: center;
+        }
+
+        #blazor-error-ui .dismiss {
+            cursor: pointer;
+            position: absolute;
+            right: 0.75rem;
+            top: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        #blazor-error-ui .reload {
+            color: white;
+            text-decoration: underline;
+        }
+
+        /* 隐藏默认的加载进度元素 */
+        .loading-progress, .loading-progress-text {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
-    <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+<div id="app">
+    <div class="loading-container">
+        <div class="loading-spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+        <div class="loading-text">资源加载</div>
+        <div class="loading-subtext">正在加载网站资源</div>
     </div>
+</div>
 
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
-    </div>
-    <script src="_framework/blazor.webassembly.js"></script>
+<div id="blazor-error-ui">
+    发生未处理的错误。
+    <a href="" class="reload">重新加载</a>
+    <a class="dismiss">🗙</a>
+</div>
+<script src="_framework/blazor.webassembly.js"></script>
+<script>
+    // 创建灵动的加载点动画
+    document.addEventListener('DOMContentLoaded', function() {
+        const dotsElement = document.querySelector('.loading-dots');
+        let dots = 0;
+
+        setInterval(function() {
+            dots = (dots % 3) + 1;
+            dotsElement.textContent = '.'.repeat(dots);
+        }, 500);
+    });
+
+    // 当应用加载完成后隐藏加载界面
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            const loadingContainer = document.querySelector('.loading-container');
+            if (loadingContainer) {
+                loadingContainer.style.opacity = '0';
+                setTimeout(function() {
+                    loadingContainer.style.display = 'none';
+                }, 500);
+            }
+        }, 500);
+    });
+</script>
 </body>
 
 </html>

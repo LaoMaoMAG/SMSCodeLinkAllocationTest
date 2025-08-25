@@ -1,7 +1,271 @@
-﻿@page "/"
+@page "/Home"
 
-<PageTitle>Home</PageTitle>
+<div style="background-image: url('images/background.png'); 
+            background-size: cover; 
+            background-position: center; 
+            height: 100vh; 
+            padding: 20px;
+            display: flex;
+            flex-direction: column;">
 
-<h1>Hello, world!</h1>
+    <!-- 顶部导航栏 -->
+    <div style="background: rgba(255, 255, 255, 0.85);
+            border-radius: 15px;
+            padding: 0 30px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: none;
+            flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.4);">
+        <div style="display: flex; justify-content: space-between; align-items: center; height: 60px;">
+            <b style="font-size: 20px">短信解码管理面板</b>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <img src="images/head.jpg" alt="管理员头像"
+                     style="width: 40px; height: 40px; border-radius: 50%; border: 2px solid #ccc;"/>
+                <span>Hello! admin.</span>
+            </div>
+        </div>
+    </div>
 
-Welcome to your new app.
+    <!-- 中部面板 -->
+    <div style="flex: 1; display: flex; margin: 20px 0; gap: 20px;">
+        
+        <!-- 左侧两个卡片 -->
+<div style="width: 30%; display: flex; flex-direction: column; gap: 20px;">
+    <div style="background: rgba(255, 255, 255, 0.85);
+                border-radius: 15px;
+                padding: 20px;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                flex: 1;
+                border: 1px solid rgba(255, 255, 255, 0.4);">
+        <h4>统计概览</h4>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="font-size: 24px; font-weight: bold; color: #007bff;">128</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">总请求数</div>
+            </div>
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="font-size: 24px; font-weight: bold; color: #28a745;">96</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">接码次数</div>
+            </div>
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="font-size: 24px; font-weight: bold; color: #dc3545;">32</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">禁用项目</div>
+            </div>
+            <div style="background: #f8f9fa; border-radius: 10px; padding: 15px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="font-size: 24px; font-weight: bold; color: #ffc107;">24</div>
+                <div style="font-size: 14px; color: #6c757d; margin-top: 5px;">数据总量</div>
+            </div>
+        </div>
+        <div style="margin-top: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span style="font-size: 14px;">项目启用率</span>
+                <span style="font-size: 14px; font-weight: bold;">75%</span>
+            </div>
+            <div style="height: 10px; background: #e9ecef; border-radius: 5px; overflow: hidden;">
+                <div style="width: 75%; height: 100%; background: #28a745; border-radius: 5px;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 系统配置卡片 -->
+<div style="background: rgba(255, 255, 255, 0.85);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            flex: 1;
+            border: 1px solid rgba(255, 255, 255, 0.4);">
+    <h4>系统配置</h4>
+    <div style="margin-top: 15px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee;">
+            <span>自动刷新数据</span>
+            <div style="position: relative; display: inline-block; width: 50px; height: 24px;">
+                <input type="checkbox" id="autoRefresh" style="opacity: 0; width: 0; height: 0;"/>
+                <label for="autoRefresh" 
+                       style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; 
+                              background-color: #ccc; border-radius: 24px; transition: .4s;
+                              @(autoRefresh ? "background-color: #2196F3;" : "")">
+                    <span style="position: absolute; content: ''; height: 16px; width: 16px; left: 4px; bottom: 4px; 
+                                 background-color: white; border-radius: 50%; transition: .4s;
+                                 @(autoRefresh ? "transform: translateX(26px);" : "")">
+                    </span>
+                </label>
+            </div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee;">
+            <span>启用通知</span>
+            <div style="position: relative; display: inline-block; width: 50px; height: 24px;">
+                <input type="checkbox" id="enableNotifications" style="opacity: 0; width: 0; height: 0;"/>
+                <label for="enableNotifications" 
+                       style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; 
+                              background-color: #ccc; border-radius: 24px; transition: .4s;
+                              @(enableNotifications ? "background-color: #2196F3;" : "")">
+                    <span style="position: absolute; content: ''; height: 16px; width: 16px; left: 4px; bottom: 4px; 
+                                 background-color: white; border-radius: 50%; transition: .4s;
+                                 @(enableNotifications ? "transform: translateX(26px);" : "")">
+                    </span>
+                </label>
+            </div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee;">
+            <span>数据保留天数</span>
+            <select style="padding: 5px; border-radius: 5px; border: 1px solid #ccc;">
+                <option>@dataRetentionDays</option>
+                <option value="7">7天</option>
+                <option value="30">30天</option>
+                <option value="90">90天</option>
+                <option value="365">365天</option>
+            </select>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 0;">
+            <span>最大并发数</span>
+            <input type="number" value="@maxConcurrent" 
+                   style="width: 80px; padding: 5px; border-radius: 5px; border: 1px solid #ccc; text-align: center;"
+                   min="1" max="100"/>
+        </div>
+        
+        <div style="margin-top: 20px; display: flex; justify-content: flex-end; gap: 10px;">
+            <button style="padding: 8px 15px; border-radius: 5px; border: 1px solid #ccc; background: white;">
+                重置
+            </button>
+            <button style="padding: 8px 15px; border-radius: 5px; border: 1px solid #28a745; background: #28a745; color: white;">
+                保存
+            </button>
+        </div>
+    </div>
+</div>
+
+</div>
+
+
+        <!-- 右侧大卡片 -->
+        <div style="width: 70%; background: rgba(255, 255, 255, 0.85);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            display: flex;
+            flex-direction: column;">
+
+            <!-- 顶部多选操作栏 -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">全选
+                </button>
+                <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">删除
+                </button>
+                <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">导出
+                </button>
+                <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">刷新
+                </button>
+            </div>
+
+            <!-- 表格区域 -->
+            <div style="flex: 1; overflow: auto;">
+                <table style="width: 100%; border-collapse: collapse; border-radius: 8px;">
+                    <thead>
+                    <tr style="background: rgba(0, 0, 0, 0.05);">
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">
+                            <input type="checkbox"/>
+                        </th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">ID</th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">名称</th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">状态</th>
+                        <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for (int i = 1; i <= 10; i++)
+                    {
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px;">
+                            <input type="checkbox"/>
+                        </td>
+                        <td style="padding: 10px;">@i</td>
+                        <td style="padding: 10px;">项目 @i</td>
+                        <td style="padding: 10px;">
+                            <span
+                                style="padding: 3px 8px; border-radius: 3px; background: @(i % 2 == 0 ? "#d4edda" : "#f8d7da"); color: @(i % 2 == 0 ? "#155724" : "#721c24");">
+                                @(i % 2 == 0 ? "启用" : "禁用")
+                            </span>
+                        </td>
+                        <td style="padding: 10px;">
+                            <button
+                                style="padding: 3px 8px; border-radius: 3px; border: 1px solid #ccc; background: white; margin-right: 5px;">
+                                编辑
+                            </button>
+                            <button
+                                style="padding: 3px 8px; border-radius: 3px; border: 1px solid #ccc; background: white;">
+                                详情
+                            </button>
+                        </td>
+                    </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- 底部翻页元素 -->
+            <div
+                style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px; flex-wrap: wrap; gap: 10px;">
+                <div style="font-size: 14px;">显示 1 到 10 项，共 50 项</div>
+                <div style="display: flex; gap: 5px;">
+                    <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">
+                        &laquo;
+                    </button>
+                    <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">
+                        1
+                    </button>
+                    <button
+                        style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white; background: #007bff; color: white;">
+                        2
+                    </button>
+                    <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">
+                        3
+                    </button>
+                    <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">
+                        4
+                    </button>
+                    <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">
+                        5
+                    </button>
+                    <button style="padding: 5px 10px; border-radius: 5px; border: 1px solid #ccc; background: white;">
+                        &raquo;
+                    </button>
+                </div>
+                <div style="display: flex; align-items: center; gap: 5px;">
+                    <span>每页</span>
+                    <select style="padding: 3px; border-radius: 3px; border: 1px solid #ccc;">
+                        <option>10</option>
+                        <option>20</option>
+                        <option>50</option>
+                    </select>
+                    <span>项</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 底部页脚 -->
+    <div style="margin: 0 -20px -20px -20px; 
+                width: calc(100% + 40px);
+                background: rgba(0, 0, 0, 0.7);
+                color: white;
+                font-weight: bold;
+                text-align: center;
+                padding: 15px 30px;
+                border-bottom-left-radius: 15px;
+                border-bottom-right-radius: 15px;
+                border: 1px solid rgba(255, 255, 255, 0.3);">
+        <p style="margin: 0; font-size: 14px;">短信解码分配系统 &copy; 2025 LaoMaoMAG. All rights reserved.</p>
+    </div>
+</div>
+
+@code {
+    private bool autoRefresh = true;
+    private bool enableNotifications = false;
+    private int dataRetentionDays = 30;
+    private int maxConcurrent = 10;
+}

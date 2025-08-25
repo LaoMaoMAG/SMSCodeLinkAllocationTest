@@ -60,8 +60,10 @@ public class AdminAuthentication
     /// </summary>
     /// <param name="username">用户名</param>
     /// <param name="password">密码</param>
-    public void InitAdminAccount(string username, string password)
+    public bool InitAdminAccount(string username, string password)
     {
+        if (IsAdminAccountInit) return false;
+        
         // 计算密码的 SHA-256 哈希值
         var passwordHash = ComputeSha256Hash(password);
         
@@ -78,6 +80,8 @@ public class AdminAuthentication
         IsAdminAccountInit = true;
         _username = username;
         _passwordHash = passwordHash;
+        
+        return true;
     }
 
     /// <summary>
@@ -88,7 +92,7 @@ public class AdminAuthentication
     /// <returns>验证结果</returns>
     public bool VerifyAdminAccount(string username, string password)
     {
-        return VerifyAdminUsername(username) && VerifyAdminUsername(password);
+        return VerifyAdminUsername(username) && VerifyAdminPassword(password);
     }
 
     /// <summary>

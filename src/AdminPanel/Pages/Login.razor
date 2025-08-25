@@ -1,0 +1,260 @@
+@page "/Login"
+@page "/InitAdmin"
+@using APIModes.RequestModes
+@using APIModes.ReturnModes
+
+@inject HttpClient Http
+@inject IJSRuntime JsRuntime
+
+<div class="auth-container">
+    <div class="card">
+        <img src="images/logo.png" alt="Logo" class="logo" />
+        <h2 class="title">@Title</h2>
+        <p class="subtitle">@Subtitle</p>
+
+        <form @onsubmit="HandleFormSubmit" autocomplete="on">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input 
+                    id="username" 
+                    name="username"
+                    type="text" 
+                    placeholder="请输入管理员用户名" 
+                    @bind="Username"
+                    autocomplete="username"
+                    class="input-field" />
+            </div>
+
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input 
+                    id="password"
+                    name="password"
+                    type="password" 
+                    placeholder="请输入管理员密码" 
+                    @bind="Password"
+                    autocomplete="current-password"
+                    class="input-field" />
+            </div>
+
+            <button class="init-btn" type="submit">
+                @ButtonLabel
+            </button>
+        </form>
+    
+    </div>
+</div>
+
+<style>
+    .auth-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background-image: url('images/background.png');
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        padding: 20px;
+    }
+
+    .card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        padding: 40px;
+        width: 100%;
+        max-width: 400px;
+        text-align: center;
+        transition: transform 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+    }
+
+    .logo {
+        width: 120px;
+        height: 120px;
+        margin: 0 auto 20px auto; /* 左右自动边距 */
+    }
+
+    .title {
+        font-size: 24px;
+        color: #333;
+        margin: 0 0 8px 0;
+        font-weight: 600;
+    }
+
+    .subtitle {
+        color: #666;
+        font-size: 14px;
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 20px;
+        text-align: left;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 14px;
+        color: #555;
+        font-weight: 500;
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s ease;
+        box-sizing: border-box;
+    }
+
+    .input-field:focus {
+        outline: none;
+        border-color: #2575fc;
+        box-shadow: 0 0 0 2px rgba(37, 117, 252, 0.2);
+    }
+
+    .init-btn {
+        margin-top: 10px;
+        width: 100%;
+        padding: 14px;
+        background: linear-gradient(to right, #6a11cb, #2575fc);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .init-btn:hover {
+        background: linear-gradient(to right, #5a0fb4, #1d6aec);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 12px rgba(37, 117, 252, 0.3);
+    }
+
+    .init-btn:active {
+        transform: translateY(0);
+    }
+</style>
+
+@code {
+    private string Username { get; set; } = "";
+    private string Password { get; set; } = "";
+    
+    [Inject]
+    private NavigationManager Navigation { get; set; } = default!;
+
+    private string Title => Navigation.ToAbsoluteUri(Navigation.Uri).LocalPath.Equals("/InitAdmin", StringComparison.OrdinalIgnoreCase) 
+        ? "初始化管理员账户" 
+        : "管理员认证";
+        
+    private string Subtitle => Navigation.ToAbsoluteUri(Navigation.Uri).LocalPath.Equals("/InitAdmin", StringComparison.OrdinalIgnoreCase) 
+        ? "初始化您的管理员账户" 
+        : "登陆您的管理员账户";
+        
+    private string ButtonLabel => Navigation.ToAbsoluteUri(Navigation.Uri).LocalPath.Equals("/InitAdmin", StringComparison.OrdinalIgnoreCase) 
+        ? "初始化账户" 
+        : "登陆账户";
+
+    private bool IsInitializationMode => Navigation.ToAbsoluteUri(Navigation.Uri).LocalPath
+        .Equals("/InitAdmin", StringComparison.OrdinalIgnoreCase);
+    
+    /// <summary>
+    /// 处理表单提交
+    /// </summary>
+    private async Task HandleFormSubmit(EventArgs e)
+    {
+        if (IsInitializationMode) 
+            await InitAdminAccount();
+        else 
+            await LoginAdminAccount();
+    }
+
+    /// <summary>
+    /// 初始化管理员账户
+    /// </summary>
+    private async Task InitAdminAccount()
+    {
+        try
+        {
+            var url = $"{Config.WebAPIServer}/AdminRequest/InitAdminAccount";
+            var response = await Http.PostAsJsonAsync(url, new AdminRequestInitAccountData()
+            {
+                Username = Username,
+                Password = Password
+            });
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var statusData = await response.Content.ReadFromJsonAsync<ReturnDataBase>();
+                if (statusData == null)
+                {
+                    await JsRuntime.InvokeVoidAsync("alert", "服务端未返回数据！");
+                    return;
+                }
+                await JsRuntime.InvokeVoidAsync("alert", statusData.Message);
+                if (!statusData.Success) return;
+                Navigation.NavigateTo("/Login", forceLoad: true);
+            }
+            else
+            {
+                await JsRuntime.InvokeVoidAsync("alert", $"HTTP状态码错误：{response.StatusCode}");
+            }
+        }
+        catch (Exception ex)
+        {
+            await JsRuntime.InvokeVoidAsync("alert", $"发生错误: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// 登录管理员账户
+    /// </summary>
+    private async Task LoginAdminAccount()
+    {
+        try
+        {
+            var url = $"{Config.WebAPIServer}/AdminRequest/AccountAuthentication";
+            var response = await Http.PostAsJsonAsync(url, new AdminRequestDataBase
+            {
+                Username = Username,
+                Password = Password
+            });
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var cookieService = new CookieService(JsRuntime);
+                await cookieService.SetCookie("username", Username, 7);
+                await cookieService.SetCookie("password", Password, 7);
+                
+                await JsRuntime.InvokeVoidAsync("alert", "登录成功！");
+                Navigation.NavigateTo("/Home", forceLoad: true);
+            }
+            else
+            {
+                var statusData = await response.Content.ReadFromJsonAsync<ReturnIntData>();
+                if (statusData == null)
+                {
+                    await JsRuntime.InvokeVoidAsync("alert", "服务端未返回数据！");
+                    return;
+                }
+                await JsRuntime.InvokeVoidAsync("alert", $"{statusData.Message}");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+}

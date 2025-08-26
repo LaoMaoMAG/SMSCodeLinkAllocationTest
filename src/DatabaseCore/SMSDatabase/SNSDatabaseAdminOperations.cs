@@ -1,8 +1,7 @@
-using LiteDB;
-
 namespace DatabaseCore;
 
 // 数据库管理操作
+// ReSharper disable once InconsistentNaming
 public partial class SMSDatabaseManager
 {
     /// <summary>
@@ -37,25 +36,23 @@ public partial class SMSDatabaseManager
             return false; // 插入失败
         }
     }
-    
+
     /// <summary>
     /// 删除短信
     /// </summary>
-    /// <param name="objectId"></param>
+    /// <param name="content"></param>
     /// <returns></returns>
     // ReSharper disable once InconsistentNaming
     // ReSharper disable once MemberCanBePrivate.Global
-    public bool DeleteSMS(List<ObjectId> objectId)
+    public bool DeleteSMS(List<string> content)
     {
         try
         {
             Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
-                foreach (var id in objectId)
-                {
-                    col.Delete(id);
-                }
+                col.EnsureIndex(x => x.Content, true); // 唯一
+                col.DeleteMany(x => content.Contains(x.Content)); // 修改这里
             });
             return true;
         }
@@ -70,9 +67,9 @@ public partial class SMSDatabaseManager
     /// </summary>
     /// <returns></returns>
     // ReSharper disable once InconsistentNaming
-    public bool DeleteSMS(ObjectId objectId)
+    public bool DeleteSMS(string content)
     {
-        var smsList = DeleteSMS([objectId]);
+        var smsList = DeleteSMS([content]);
         return smsList;
     }
     
@@ -187,6 +184,70 @@ public partial class SMSDatabaseManager
         catch (InvalidOperationException)
         {
             return 0;
+        }
+    }
+
+    /// <summary>
+    /// 禁用短信
+    /// </summary>
+    /// <param name="content">要禁用的短信内容列表</param>
+    /// <returns>操作是否成功</returns>
+    // ReSharper disable once InconsistentNaming
+    // ReSharper disable once MemberCanBePrivate.Global
+    public bool DisableSMS(List<string> content)
+    {
+        try
+        {
+            Execute(db =>
+            {
+                var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                col.EnsureIndex(x => x.Content, true); // 确保唯一索引
+            
+                // 查找需要禁用的短信并更新其 IsEnable 状态
+                var smsToUpdate = col.Find(x => content.Contains(x.Content)).ToList();
+                foreach (var sms in smsToUpdate)
+                {
+                    sms.IsEnable = false;
+                    col.Update(sms);
+                }
+            });
+            return true;
+        }
+        catch (InvalidOperationException)
+        {
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// 禁用单条短信
+    /// </summary>
+    /// <param name="content">要禁用的短信内容</param>
+    /// <returns>操作是否成功</returns>
+    // ReSharper disable once InconsistentNaming
+    public bool DisableSMS(string content)
+    {
+        return DisableSMS([content]);
+    }
+
+    /// <summary>
+    /// 获取所有短信内容
+    /// </summary>
+    /// <returns>所有短信内容列表</returns>
+    // ReSharper disable once InconsistentNaming
+    public List<string>? GetAllSMSContent()
+    {
+        try
+        {
+            return Execute(db =>
+            {
+                var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                return col.FindAll().Select(x => x.Content).ToList();
+            });
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
         }
     }
 }

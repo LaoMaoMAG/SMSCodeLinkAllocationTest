@@ -14,7 +14,7 @@ public class UserRequestController : ControllerBase
     // ReSharper disable once InconsistentNaming
     public string? RequestSingleSMS()
     {
-        return DatabaseCore.DatabaseManager.Instance.RequestSMS();
+        return DatabaseCore.SMSDatabaseManager.Instance.RequestSMS();
     }
     
     /// <summary>
@@ -26,7 +26,7 @@ public class UserRequestController : ControllerBase
     // ReSharper disable once InconsistentNaming
     public string? RequestMultipleSMS(string count)
     {
-        var smsList = DatabaseCore.DatabaseManager.Instance.RequestSMS(int.Parse(count));
+        var smsList = DatabaseCore.SMSDatabaseManager.Instance.RequestSMS(int.Parse(count));
         return smsList?.Aggregate("", (current, sms) => current + (sms.Content + "\n"));
     }
 }

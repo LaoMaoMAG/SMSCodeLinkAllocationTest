@@ -3,7 +3,7 @@ using LiteDB;
 namespace DatabaseCore;
 
 // 数据库管理操作
-public partial class DatabaseManager
+public partial class SMSDatabaseManager
 {
     /// <summary>
     /// 添加短信
@@ -16,9 +16,18 @@ public partial class DatabaseManager
             Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                col.EnsureIndex(x => x.Content, true); // 唯一
+                
                 foreach (var content in contentList)
                 {
-                    col.Insert(new SMSDatabaseData(content));
+                    try
+                    {
+                        col.Insert(new SMSDatabaseData(content));
+                    }
+                    catch (Exception e)
+                    {
+                        // ignored
+                    }
                 }
             });
             return true; // 插入成功
@@ -147,7 +156,7 @@ public partial class DatabaseManager
     {
         try
         {
-            Execute(db =>
+            return Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
                 return col.FindAll().Sum(x => x.AccessCount);

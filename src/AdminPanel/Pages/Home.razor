@@ -1,7 +1,11 @@
 @page "/Home"
+@using AdminPanel.Components
 @using APIModes.RequestModes
 @using APIModes.ReturnModes
 @using DatabaseCore
+@using Microsoft.AspNetCore.Components.Forms
+@using System.IO
+@using System.Text
 
 @inject IJSRuntime JsRuntime
 @inject HttpClient Http
@@ -28,6 +32,16 @@
             </div>
         </div>
     }
+    
+    <Dialog @ref="_deleteAllDataDialog" Title="危险操作" Type="Dialog.DialogType.Warning" OnConfirm="DeleteAllData" ConfirmText="删除">
+        <p>您正在删除整个数据库，此操作不可恢复！</p>
+        <div class="text-warning">⚠️ 请确认您有完整备份。</div>
+    </Dialog>
+    
+    <Dialog @ref="_importDataDialog" Title="导入数据" Type="Dialog.DialogType.Info" OnConfirm="ImportData" ConfirmText="选择文件">
+        <p>确认要导入数据吗？</p>
+        <p>点击选择文件按钮后请选择 TXT 文件，文件里请每一行一个项目！</p>
+    </Dialog>
 
     <!-- 顶部导航栏 -->
     <div class="home-navbar">
@@ -48,27 +62,29 @@
                 <h4 class="home-card-title">统计概览</h4>
                 <div class="home-stats-grid">
                     <div class="home-stat-item">
-                        <div class="home-stat-value home-stat-primary">128</div>
+                        <div class="home-stat-value home-stat-primary">@_userApiRequestsNumber</div>
                         <div class="home-stat-label">总请求数</div>
                     </div>
                     <div class="home-stat-item">
-                        <div class="home-stat-value home-stat-success">96</div>
-                        <div class="home-stat-label">接码次数</div>
+                        <div class="home-stat-value home-stat-success">@_userApiRequestsSuccessfulSMSTotal</div>
+                        <div class="home-stat-label">获取总数</div>
                     </div>
                     <div class="home-stat-item">
-                        <div class="home-stat-value home-stat-danger">32</div>
+                        <div class="home-stat-value home-stat-danger">@_disableSMSQuantity</div>
                         <div class="home-stat-label">禁用项目</div>
                     </div>
                     <div class="home-stat-item">
-                        <div class="home-stat-value home-stat-warning">24</div>
+                        <div class="home-stat-value home-stat-warning">@_smsTotal</div>
                         <div class="home-stat-label">数据总量</div>
                     </div>
                 </div>
                 <div class="home-progress-container">
                     <div class="home-progress-info">
                         <span class="home-progress-label">系统已运行</span>
-                        <span class="home-progress-percent">@uptimeString</span>
+                        <span class="home-progress-percent">🕒 服务在 @_serverStartTime?.ToString("yyyy-MM-dd HH:mm:ss") 启动</span>
+
                     </div>
+                    
                     <div class="home-uptime-display">
                         <div class="home-uptime-item">
                             <span class="home-uptime-value">@uptime.Days</span>
@@ -88,14 +104,25 @@
                         </div>
                     </div>
                 </div>
+
             </div>
 
             <!-- 系统配置卡片 -->
             <div class="home-card home-config-card">
-                <h4 class="home-card-title">系统配置</h4>
+                <h4 class="home-card-title">接码设置</h4>
                 <div class="home-config-content">
                     <div class="home-config-item">
                         <span class="home-config-label">接码访问</span>
+                        <div class="home-toggle-switch">
+                            <input type="checkbox" id="autoRefresh" class="home-toggle-input" checked="@autoRefresh" />
+                            <label for="autoRefresh" class="home-toggle-label @(autoRefresh ? "home-toggle-checked" : "")">
+                                <span class="home-toggle-slider @(autoRefresh ? "home-toggle-slider-checked" : "")"></span>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="home-config-item">
+                        <span class="home-config-label">允许单次多个接码</span>
                         <div class="home-toggle-switch">
                             <input type="checkbox" id="autoRefresh" class="home-toggle-input" checked="@autoRefresh" />
                             <label for="autoRefresh" class="home-toggle-label @(autoRefresh ? "home-toggle-checked" : "")">
@@ -129,9 +156,9 @@
                     <button class="home-btn home-btn-default" style="background-color: #0c63e4; color: white">刷新</button>
     
                     <!-- 添加 style="margin-left: auto" 到第一个靠右的按钮 -->
-                    <button class="home-btn home-btn-default" style="background-color: #bb2d3b; color: white; margin-left: auto;">删除所有</button>
+                    <button class="home-btn home-btn-default" style="background-color: #bb2d3b; color: white; margin-left: auto;" @onclick="OnDeleteAllDataChanged">删除所有</button>
                     <button class="home-btn home-btn-default" style="background-color: #0c63e4; color: white">导出所有</button>
-                    <button class="home-btn home-btn-default" style="background-color: #0c63e4; color: white">导入数据</button>
+                    <button class="home-btn home-btn-default" style="background-color: #0c63e4; color: white" @onclick="OnImportDataChanged">导入数据</button>
                 </div>
                 
                 <!-- 表格区域 -->
@@ -147,7 +174,7 @@
                             </th>
                             <th class="home-table-cell">内容</th>
                             <th class="home-table-cell">状态</th>
-                            <th class="home-table-cell">请求次数</th>
+                            <th class="home-table-cell">获取次数</th>
                             <th class="home-table-cell">最后请求时间</th>
                             <th class="home-table-cell">创建时间</th>
                         </tr>
@@ -247,19 +274,156 @@
 </div>
 
 @code {
+    /// <summary>
+    /// 导入数据对话框
+    /// </summary>
+    private Dialog _importDataDialog = null!;
+    
+    /// <summary>
+    /// 导入数据
+    /// </summary>
+    private async Task OnImportDataChanged()
+    {
+        await _importDataDialog.Show();
+    }
+
+    /// <summary>
+    /// 导入数据
+    /// </summary>
+    private async Task ImportData()
+    {
+        var fileContent = "";
+        
+        try
+        {
+            var content = await JsRuntime.InvokeAsync<string>("readFile");
+            fileContent = content;
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            ShowToast($"上传文件时出现错误：{ex.Message}", "error");
+        }
+        
+        var lines = fileContent
+            .Split(["\r\n", "\n", "\r"], StringSplitOptions.None) // 兼容不同平台的换行符
+            .Where(line => !string.IsNullOrWhiteSpace(line)) // 去除空白行（包括空格、制表符等）
+            .ToList();
+
+        isLoading = true;
+        StateHasChanged();
+        
+        try
+        {
+            var url = $"{Config.WebAPIServer}/AdminRequest/AddMultipleSMS";
+            var response = await Http.PostAsJsonAsync(url, new AdminRequestStringListDataBase
+            {
+                Username = _username,
+                Password = _password,
+                Data = lines
+            });
+
+            await RefreshTable(CurrentPage);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonData = await response.Content.ReadFromJsonAsync<ReturnDataBase>();
+                
+                await RefreshTable(1);
+                
+                isLoading = false;
+                StateHasChanged();
+                
+                if (jsonData is { Success: true })
+                {
+                    ShowToast("上传数据成功！", "success");
+                }
+                else
+                {
+                    ShowToast("上传数据失败！", "error");
+                }
+            }
+            else
+            {
+                ShowToast("上传数据失败时 HTTP 状态码错误： {response.StatusCode} ！", "error");
+            }
+        }
+        catch (Exception e)
+        {
+            isLoading = false;
+            StateHasChanged();
+            
+            ShowToast($"向服务器上传数据时出现错误：{e.Message}", "error");
+            throw;
+        }
+
+        await _importDataDialog.Hide();
+    }
+    
+    /// <summary>
+    /// 删除所有数据对话框
+    /// </summary>
+    private Dialog _deleteAllDataDialog = null!;
+    
+    /// <summary>
+    /// 删除所有数据
+    /// </summary>
+    private async Task OnDeleteAllDataChanged()
+    {
+        await _deleteAllDataDialog.Show();
+    }
+
+    private async Task DeleteAllData()
+    {
+        isLoading = true;
+        StateHasChanged();
+        try
+        {
+            var url = $"{Config.WebAPIServer}/AdminRequest/DeleteAllSMS";
+            var response = await Http.PostAsJsonAsync(url, new AdminRequestDataBase
+            {
+                Username = _username,
+                Password = _password
+            });
+
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonData = await response.Content.ReadFromJsonAsync<ReturnDataBase>();
+                
+                await RefreshTable(1);
+                
+                isLoading = false;
+                StateHasChanged();
+                
+                if (jsonData is { Success: true })
+                {
+                    ShowToast("所有数据删除成功！", "success");
+                }
+                else
+                {
+                    ShowToast("删除所有数据失败！", "error");
+                }
+            }
+            else
+            {
+                ShowToast("删除所有数据时 HTTP 状态码错误： {response.StatusCode} ！", "error");
+            }
+        }
+        catch (Exception e)
+        {
+            isLoading = false;
+            StateHasChanged();
+            ShowToast($"删除所有数据时出现错误：{e}！", "error");
+            throw;
+        }
+        await _deleteAllDataDialog.Hide();
+    }
+    
+    
     private int TablePageSize { get; set; } = 20;
 
     private async Task OnSelectionTablePageSizeChanged()
     {
-        if (CurrentPage == 1)
-        {
-            isLoading = true;
-            StateHasChanged();
-            await RefreshTable(1);
-            isLoading = false;
-            StateHasChanged();
-            return;
-        }
         await GoToPage(1);
     }
     
@@ -314,15 +478,18 @@
         isLoading = true;
         StateHasChanged();
         
-        if (page < 1 || page > TotalPages || page == CurrentPage) return;
+        if (CurrentPage != page)
+        {
+            if (page < 1 || page > TotalPages || page == CurrentPage) return;
 
-        CurrentPage = page;
+            CurrentPage = page;
 
-        if (CurrentPageChanged.HasDelegate)
-            await CurrentPageChanged.InvokeAsync(page);
+            if (CurrentPageChanged.HasDelegate)
+                await CurrentPageChanged.InvokeAsync(page);
 
-        if (OnPageChanged.HasDelegate)
-            await OnPageChanged.InvokeAsync();
+            if (OnPageChanged.HasDelegate)
+                await OnPageChanged.InvokeAsync();
+        }
 
         await RefreshTable(page);
         
@@ -331,55 +498,77 @@
     }
     
     
-    
+    /// <summary>
+    /// 刷新表格
+    /// </summary>
+    /// <param name="pageIndex"></param>
     private async Task RefreshTable(int pageIndex)
     {
-        var url = $"{Config.WebAPIServer}/AdminRequest/GetSMSPageData?pageIndex={pageIndex}&pageSize={TablePageSize}";
-        var response = await Http.PostAsJsonAsync(url, new AdminRequestDataBase
+        // 刷新统计数据
+        await RefreshStatisticalData();
+        
+        try
         {
-            Username = _username,
-            Password = _password
-        });
+            var url = $"{Config.WebAPIServer}/AdminRequest/GetSMSPageData?pageIndex={pageIndex}&pageSize={TablePageSize}";
+            var response = await Http.PostAsJsonAsync(url, new AdminRequestDataBase
+            {
+                Username = _username,
+                Password = _password
+            });
             
-        if (response.IsSuccessStatusCode)
-        {
-            var jsonData = await response.Content.ReadFromJsonAsync<AdminReturnSMSPageData>();
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonData = await response.Content.ReadFromJsonAsync<AdminReturnSMSPageData>();
             
-            _smsTotal = (int)jsonData!.SMSTotal!;
-            _miniNumber = (int)jsonData.MiniNumber!;
-            _maxNumber = (int)jsonData.MaxNumber!;
-            TotalPages = (int)jsonData.TotalPages!;
+                _smsTotal = (int)jsonData!.SMSTotal!;
+                _miniNumber = (int)jsonData.MiniNumber!;
+                _maxNumber = (int)jsonData.MaxNumber!;
+                TotalPages = (int)jsonData.TotalPages!;
 
             
-            items.Clear();
+                items.Clear();
             
-            foreach (var data in jsonData.SMSList)
-            {
-                items.Add(new ItemData(data.Content)
+                if(jsonData.SMSList == null) return;
+                
+                foreach (var data in jsonData.SMSList)
                 {
-                    Id = data.Id,
-                    IsEnable = data.IsEnable,
-                    AccessCount = data.AccessCount,
-                    LastAccessTime = data.LastAccessTime,
-                    CreateTime = data.CreateTime,
-                });
+                    items.Add(new ItemData(data.Content)
+                    {
+                        Id = data.Id,
+                        IsEnable = data.IsEnable,
+                        AccessCount = data.AccessCount,
+                        LastAccessTime = data.LastAccessTime,
+                        CreateTime = data.CreateTime,
+                    });
+                }
+                
+                StateHasChanged();
             }
-            
-            OnInitialized();
+            else 
+                ShowToast($"获取分页数据时 HTTP 状态码错误：{response.StatusCode}！", "error");
         }
-        else 
-            ShowToast($"获取分页数据时 HTTP 状态码错误：{response.StatusCode}！", "error");
+        catch (Exception e)
+        {
+            ShowToast($"获取分页数据时出现错误：{e}！", "error");
+            throw;
+        }
     }
     
     
     
     
-    // 数据列表
+    /// <summary>
+    /// 数据列表
+    /// </summary>
     private List<ItemData> items = new();
 
     // 示例：全选/取消全选
     private bool _selectAll;
     
+    /// <summary>
+    /// 全选/取消全选
+    /// </summary>
+    /// <param name="e"></param>
     private async Task HandleSelectAllChanged(ChangeEventArgs e)
     {
         if (e.Value is bool value)
@@ -390,6 +579,9 @@
         ToggleSelectAll();
     }
 
+    /// <summary>
+    /// 批量操作
+    /// </summary>
     private void ToggleSelectAll()
     {
         foreach (var item in items)
@@ -398,7 +590,10 @@
         }
     }
     
-    
+    /// <summary>
+    /// 列表项数据
+    /// </summary>
+    /// <param name="content"></param>
     public class ItemData(string content) : SMSDatabaseData(content)
     {
        public bool IsSelected { get; set; } = false;
@@ -415,11 +610,122 @@
     /// </summary>
     private string _password = "";
     
+    /// <summary>
+    /// 短信总数
+    /// </summary>
     private int _smsTotal = 0;
     
+    /// <summary>
+    /// 最小号码
+    /// </summary>
     private int _miniNumber = 0;
     
+    /// <summary>
+    /// 最大号码
+    /// </summary>
     private int _maxNumber = 0;
+    
+    /// <summary>
+    /// 服务器启动时间
+    /// </summary>
+    private DateTime? _serverStartTime = DateTime.Now;
+
+    /// <summary>
+    /// 刷新服务器启动时间
+    /// </summary>
+    private async Task RefreshServerStartTime()
+    {
+        try
+        {
+            var url = $"{Config.WebAPIServer}/AdminRequest/GetServerStartTime";
+            var response = await Http.PostAsJsonAsync(url, new AdminRequestDataBase
+            {
+                Username = _username,
+                Password = _password
+            });
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonData = await response.Content.ReadFromJsonAsync<ReturnLongData>();
+                if (jsonData?.Data == null)
+                {
+                    ShowToast($"获取服务器启动时间失败！", "error");
+                    return;
+                }
+                
+                var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                _serverStartTime =  epoch.AddMilliseconds((long)jsonData!.Data!).ToLocalTime();
+            }
+            else 
+                ShowToast($"获取服务器启动时间时 HTTP 状态码错误：{response.StatusCode}！", "error");
+        }
+        catch (Exception e)
+        {
+            ShowToast($"获取服务器启动时间时出现错误：{e}！", "error");
+            throw;
+        }
+    }
+    
+    /// <summary>
+    /// 用户API请求数据
+    /// </summary>
+    private int _userApiRequestsNumber = 0;
+    
+    /// <summary>
+    /// 用户API请求成功数
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    private int _userApiRequestsSuccessfulSMSTotal = 0;
+    
+    /// <summary>
+    /// 禁用的短信数量
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    private int _disableSMSQuantity = 0;
+    
+    /// <summary>
+    /// 刷新统计数据
+    /// </summary>
+    private async Task RefreshStatisticalData()
+    {
+        try
+        {
+            var url = $"{Config.WebAPIServer}/AdminRequest/GetStatisticalData";
+            var response = await Http.PostAsJsonAsync(url, new AdminRequestDataBase
+            {
+                Username = _username,
+                Password = _password
+            });
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var jsonData = await response.Content.ReadFromJsonAsync<AdminReturnStatisticalData>();
+                if (jsonData is not { Success: true })
+                {
+                    ShowToast($"获取统计数据失败！", "error");
+                    return;
+                }
+                
+                _smsTotal = jsonData.SMSTotal;
+                _userApiRequestsNumber = jsonData.UserApiRequestsNumber;
+                _userApiRequestsSuccessfulSMSTotal = jsonData.UserApiRequestsSuccessfulSMSTotal;
+                _disableSMSQuantity = jsonData.DisableSMSQuantity;
+                
+                StateHasChanged();
+            }
+            else 
+                ShowToast($"获取统计数据时 HTTP 状态码错误：{response.StatusCode}！", "error");
+        }
+        catch (Exception e)
+        {
+            ShowToast($"获取统计数据时出现错误：{e}！", "error");
+            throw;
+        }
+    }
+    
+    
+    
+    
     
     /// <summary>
     /// 初始化方法
@@ -429,15 +735,62 @@
         isLoading = true;
         StateHasChanged();
         
+        // 必须比其他初始化方提前
         var cookieService = new CookieService(JsRuntime);
         _username = await cookieService.GetCookie("username");
         _password = await cookieService.GetCookie("password");
-
+        
+        // 刷新服务器启动时间
+        await RefreshServerStartTime();
+        
+        // 刷新表格
         await RefreshTable(1);
         
         isLoading = false;
         StateHasChanged();
+        
+        // 启动定时器，每秒更新一次运行时长
+        var unused = new Timer(_ => 
+        {
+            UpdateUptime();
+        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+
+        // 10秒刷新一次统计数据，先等待10秒再开始执行
+        var unused1 = new Timer(refresh => 
+        {
+            _ = RefreshStatisticalData();
+        }, null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
     }
+    
+    /// <summary>
+    /// 显示提示
+    /// </summary>
+    /// <param name="message"></param>
+    /// <param name="type"></param>
+    private void ShowToast(string message, string type)
+    {
+        toastMessage = message;
+        toastType = type;
+        showToast = true;
+        StateHasChanged();
+        
+        // 3秒后自动关闭
+        Task.Delay(3000).ContinueWith(_ => 
+        {
+            showToast = false;
+            InvokeAsync(StateHasChanged);
+        });
+    }
+    
+    /// <summary>
+    /// 关闭提示
+    /// </summary>
+    private void CloseToast()
+    {
+        showToast = false;
+        StateHasChanged();
+    }
+
     
     
     //====================================
@@ -484,31 +837,12 @@
         StateHasChanged();
     }
     
-    private void ShowToast(string message, string type)
-    {
-        toastMessage = message;
-        toastType = type;
-        showToast = true;
-        StateHasChanged();
-        
-        // 3秒后自动关闭
-        Task.Delay(3000).ContinueWith(_ => 
-        {
-            showToast = false;
-            InvokeAsync(StateHasChanged);
-        });
-    }
-    
-    private void CloseToast()
-    {
-        showToast = false;
-        StateHasChanged();
-    }
     
     // 更新运行时长
-    private void UpdateUptime(object state)
+    private void UpdateUptime()
     {
-        uptime = DateTime.Now - startTime;
+        if (_serverStartTime == null) return;
+        uptime = DateTime.Now - (DateTime)_serverStartTime;
         uptimeString = $"{uptime.Days}天 {uptime.Hours}小时 {uptime.Minutes}分钟 {uptime.Seconds}秒";
         InvokeAsync(StateHasChanged);
     }

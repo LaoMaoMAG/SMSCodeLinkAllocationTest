@@ -1,0 +1,356 @@
+/* ===================================================================
+   Blazor 对话框组件 - 修复版 | 按钮颜色正常 | 悬浮效果保留
+   =================================================================== */
+
+/* 遮罩层 */
+.dialog-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    z-index: 1000;
+    padding: 16px;
+    box-sizing: border-box;
+}
+
+.dialog-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* 对话框容器 */
+.dialog-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+    width: 90%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow: hidden;
+    transform: scale(0.9);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+    animation: dialog-pop-in 0.3s forwards;
+    display: flex;
+    flex-direction: column;
+}
+
+@keyframes dialog-pop-in {
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+/* 左侧类型标识条 */
+.dialog-container.dialog-type-info      { border-left: 6px solid #007bff; }
+.dialog-container.dialog-type-success   { border-left: 6px solid #28a745; }
+.dialog-container.dialog-type-warning   { border-left: 6px solid #F59E0B; }
+.dialog-container.dialog-type-error,
+.dialog-container.dialog-type-danger    { border-left: 6px solid #dc3545; }
+
+/* 标题区域 */
+.dialog-header {
+    padding: 18px 24px 14px;
+    border-bottom: 1px solid #eaeaea;
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: #2c3e50;
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+}
+
+.dialog-header h3 {
+    margin: 0;
+    font-size: inherit;
+    font-weight: inherit;
+    color: inherit;
+}
+
+/* 图标区域 */
+.dialog-header .dialog-icon {
+    margin-right: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.dialog-header .dialog-icon svg {
+    width: 100%;
+    height: 100%;
+}
+
+/* 图标颜色 */
+.dialog-container.dialog-type-info      .dialog-icon svg { color: #007bff; }
+.dialog-container.dialog-type-success   .dialog-icon svg { color: #28a745; }
+.dialog-container.dialog-type-warning   .dialog-icon svg { color: #F59E0B; }
+.dialog-container.dialog-type-error,
+.dialog-container.dialog-type-danger    .dialog-icon svg { color: #dc3545; }
+
+/* 关闭按钮 */
+.dialog-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    margin-left: auto;
+    transition: background 0.2s, color 0.2s;
+}
+
+.dialog-close:hover {
+    background: #f1f1f1;
+    color: #333;
+}
+
+/* 正文区域 */
+.dialog-body {
+    padding: 20px 24px;
+    color: #555;
+    line-height: 1.7;
+    font-size: 0.95rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+    flex: 1;
+    overflow-y: auto;
+    max-height: 50vh;
+}
+
+.dialog-body p {
+    margin: 0 0 0.8em;
+}
+
+.dialog-body ul, .dialog-body ol {
+    margin: 0.6em 0 1em;
+    padding-left: 1.5em;
+}
+
+.dialog-body li {
+    margin: 0.3em 0;
+}
+
+.dialog-body .text-emphasis {
+    font-weight: 600;
+    color: #333;
+    font-size: 1rem;
+}
+
+/* 柔和警告框 */
+.dialog-body .text-warning {
+    background-color: #FEF3C7;
+    color: #92400E;
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 0.92rem;
+    margin: 12px 0;
+    border-left: 4px solid #F59E0B;
+    font-weight: 500;
+}
+
+.dialog-body .text-sm {
+    font-size: 0.85rem;
+    color: #777;
+    margin-top: 8px;
+}
+
+/* 页脚按钮 */
+.dialog-footer {
+    padding: 16px 24px;
+    border-top: 1px solid #eee;
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    font-size: 0.9rem;
+    background-color: #fafafa;
+}
+
+/* 按钮基础 */
+.dialog-btn {
+    padding: 9px 18px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    min-width: 80px;
+    text-align: center;
+}
+
+.dialog-btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.dialog-btn-secondary:hover {
+    background-color: #5a6268;
+    transform: translateY(-1px);
+}
+
+/* 主按钮：默认蓝色 */
+.dialog-btn-primary {
+    background-color: #007bff;
+    color: white;
+    transform: translateY(0);
+}
+
+.dialog-btn-primary:hover {
+    background-color: #0069d9;
+    transform: translateY(-1px);
+}
+
+/* 危险/错误类型：红色按钮 */
+.dialog-btn-primary.dialog-btn-type-danger,
+.dialog-btn-primary.dialog-btn-type-error {
+    background-color: #dc3545;
+}
+
+.dialog-btn-primary.dialog-btn-type-danger:hover,
+.dialog-btn-primary.dialog-btn-type-error:hover {
+    background-color: #c82333;
+    transform: translateY(-1px);
+}
+
+/* Success：绿色按钮 */
+.dialog-btn-primary.dialog-btn-type-success {
+    background-color: #28a745;
+}
+
+.dialog-btn-primary.dialog-btn-type-success:hover {
+    background-color: #218838;
+    transform: translateY(-1px);
+}
+
+/* Warning：橙色按钮 */
+.dialog-btn-primary.dialog-btn-type-warning {
+    background-color: #F59E0B;
+}
+
+.dialog-btn-primary.dialog-btn-type-warning:hover {
+    background-color: #D97706;
+    transform: translateY(-1px);
+}
+
+/* 按钮激活状态 */
+.dialog-btn:active {
+    transform: translateY(0);
+}
+
+/* ========== 响应式 ========== */
+@media (max-width: 576px) {
+    .dialog-container {
+        max-width: 95%;
+        border-radius: 10px;
+    }
+
+    .dialog-header,
+    .dialog-body,
+    .dialog-footer {
+        padding-left: 18px;
+        padding-right: 18px;
+    }
+
+    .dialog-header {
+        font-size: 1.15rem;
+    }
+
+    .dialog-btn {
+        padding: 8px 14px;
+        font-size: 0.9rem;
+    }
+}
+
+/* ========== 深色模式 ========== */
+@media (prefers-color-scheme: dark) {
+    .dialog-container {
+        background: #2d3748;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .dialog-header {
+        color: #e2e8f0;
+        border-bottom-color: #4a5568;
+    }
+
+    .dialog-body {
+        color: #cbd5e0;
+    }
+
+    .dialog-footer {
+        background-color: #1a202c;
+        border-top-color: #4a5568;
+    }
+
+    .dialog-close {
+        color: #cbd5e0;
+    }
+
+    .dialog-close:hover {
+        background: #4a5568;
+        color: white;
+    }
+
+    .dialog-btn-secondary {
+        background-color: #4a5568;
+    }
+
+    .dialog-btn-secondary:hover {
+        background-color: #2d3748;
+    }
+
+    .dialog-btn-primary {
+        background-color: #3182ce;
+    }
+
+    .dialog-btn-primary:hover {
+        background-color: #2b6cb0;
+    }
+
+    .dialog-btn-primary.dialog-btn-type-danger,
+    .dialog-btn-primary.dialog-btn-type-error {
+        background-color: #E53E3E;
+    }
+
+    .dialog-btn-primary.dialog-btn-type-danger:hover,
+    .dialog-btn-primary.dialog-btn-type-error:hover {
+        background-color: #c53030;
+    }
+
+    .dialog-btn-primary.dialog-btn-type-success {
+        background-color: #38A169;
+    }
+
+    .dialog-btn-primary.dialog-btn-type-success:hover {
+        background-color: #2f855a;
+    }
+
+    .dialog-btn-primary.dialog-btn-type-warning {
+        background-color: #DD6B20;
+    }
+
+    .dialog-btn-primary.dialog-btn-type-warning:hover {
+        background-color: #c05a1a;
+    }
+
+    .dialog-body .text-warning {
+        background-color: #92400E;
+        color: #FEF3C7;
+    }
+}

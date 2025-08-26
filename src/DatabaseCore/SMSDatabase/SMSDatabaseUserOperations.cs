@@ -1,7 +1,7 @@
 namespace DatabaseCore;
 
 // 数据库用户操作
-public partial class DatabaseManager
+public partial class SMSDatabaseManager
 {
     /// <summary>
     /// 请求短信

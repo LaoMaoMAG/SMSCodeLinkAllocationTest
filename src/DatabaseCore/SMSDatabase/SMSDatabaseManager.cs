@@ -5,7 +5,7 @@ namespace DatabaseCore;
 /// <summary>
 /// 数据库管理器
 /// </summary>
-public partial class DatabaseManager
+public partial class SMSDatabaseManager
 {
     /// <summary>
     /// 静态锁，用于确保单线程操作
@@ -15,7 +15,7 @@ public partial class DatabaseManager
     /// <summary>
     /// 单例实例
     /// </summary>
-    private static DatabaseManager? _instance;
+    private static SMSDatabaseManager? _instance;
     
     /// <summary>
     /// 数据库连接
@@ -25,7 +25,7 @@ public partial class DatabaseManager
     /// <summary>
     /// 获取单例实例
     /// </summary>
-    public static DatabaseManager Instance => _instance ??= new DatabaseManager();
+    public static SMSDatabaseManager Instance => _instance ??= new SMSDatabaseManager();
 
     /// <summary>
     /// 短信数据库表名
@@ -36,7 +36,7 @@ public partial class DatabaseManager
     /// <summary>
     /// 私有构造函数
     /// </summary>
-    private DatabaseManager()
+    private SMSDatabaseManager()
     {
         // 连接数据库
         var connectionString = new ConnectionString(DatabaseCoreConfig.LiteDbFilePath)

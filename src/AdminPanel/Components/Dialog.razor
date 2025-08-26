@@ -1,0 +1,89 @@
+<!-- Components/Dialog.razor -->
+<div class="dialog-overlay @(IsVisible ? "show" : "")" @onclick="OnBackdropClick">
+    <div class="dialog-container dialog-type-@Type" @onclick:stopPropagation="true">
+        <div class="dialog-header">
+            <div class="dialog-icon">
+                @switch (Type)
+                {
+                    case DialogType.Success:
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="20 6 9 17 4 12"></polyline>
+                        </svg>
+                        break;
+                    case DialogType.Error:
+                    case DialogType.Danger:
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="8" x2="12" y2="12"></line>
+                            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        break;
+                    case DialogType.Warning:
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                            <line x1="12" y1="9" x2="12" y2="13"></line>
+                            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        break;
+                    case DialogType.Info:
+                    default:
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <line x1="12" y1="16" x2="12" y2="12"></line>
+                            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+                        </svg>
+                        break;
+                }
+            </div>
+            <h3>@Title</h3>
+            <button class="dialog-close" @onclick="Close">×</button>
+        </div>
+
+        <div class="dialog-body">
+            @ChildContent
+        </div>
+
+        <div class="dialog-footer">
+            @if (ShowCancel)
+            {
+                <button class="dialog-btn dialog-btn-secondary" @onclick="Close">@CancelText</button>
+            }
+            <button class="dialog-btn dialog-btn-primary dialog-btn-type-@Type" @onclick="OnConfirm">@ConfirmText</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    public enum DialogType { Info, Success, Warning, Error, Danger }
+
+    [Parameter] public string Title { get; set; } = "提示";
+    [Parameter] public DialogType Type { get; set; } = DialogType.Info;
+    [Parameter] public string ConfirmText { get; set; } = "确定";
+    [Parameter] public string CancelText { get; set; } = "取消";
+    [Parameter] public bool ShowCancel { get; set; } = true;
+    [Parameter] public bool CloseOnBackdropClick { get; set; } = true;
+
+    [Parameter] public RenderFragment ChildContent { get; set; }
+
+    [Parameter] public EventCallback OnConfirm { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+
+    private bool IsVisible { get; set; }
+
+    public async Task Show() => IsVisible = true;
+    public async Task Hide() => IsVisible = false;
+
+    private async Task Close()
+    {
+        await OnCancel.InvokeAsync();
+        await Hide();
+    }
+
+    private async Task OnBackdropClick()
+    {
+        if (CloseOnBackdropClick)
+        {
+            await Close();
+        }
+    }
+}

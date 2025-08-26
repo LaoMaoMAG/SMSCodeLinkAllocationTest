@@ -21,7 +21,7 @@ public partial class AdminRequest
         if (requestString.Data == null) 
             return BadRequest(new ReturnDataBase { Success = false, Message = "Content 不能为空！" });
         
-        var isSuccess = DatabaseManager.Instance.AddSMS(requestString.Data);
+        var isSuccess = SMSDatabaseManager.Instance.AddSMS(requestString.Data);
         
         return Ok(isSuccess
             ? new ReturnDataBase { Success = true, Message = "添加数据成功！" }
@@ -43,7 +43,7 @@ public partial class AdminRequest
         if (requestStringList.Data == null) 
             return BadRequest(new ReturnDataBase { Success = false, Message = "Content 不能为空！" });
         
-        var isSuccess = DatabaseManager.Instance.AddSMS(requestStringList.Data);
+        var isSuccess = SMSDatabaseManager.Instance.AddSMS(requestStringList.Data);
         
         return Ok(isSuccess
             ? new ReturnDataBase { Success = true, Message = "添加数据成功！" }
@@ -63,8 +63,8 @@ public partial class AdminRequest
         
         Console.WriteLine(pageIndex + " " + pageSize);
         
-        var smsList = DatabaseManager.Instance.GetSMSPageData(pageIndex, pageSize);
-        var smsTotal = DatabaseManager.Instance.GetSMSTotal();
+        var smsList = SMSDatabaseManager.Instance.GetSMSPageData(pageIndex, pageSize);
+        var smsTotal = SMSDatabaseManager.Instance.GetSMSTotal();
         
         var totalPages = smsTotal / pageSize;
         if (totalPages == 0 && smsTotal != 0) totalPages = 1;
@@ -109,10 +109,55 @@ public partial class AdminRequest
         if (!VerifyAdminAccount(request)) 
             return Unauthorized(new ReturnDataBase { Success = false, Message = "管理员认证失败！" });
         
-        var isSuccess = DatabaseManager.Instance.DeleteAllSMS();
+        var isSuccess = SMSDatabaseManager.Instance.DeleteAllSMS();
         
         return Ok(isSuccess
             ? new ReturnDataBase { Success = true, Message = "删除数据成功！" }
             : new ReturnDataBase { Success = false, Message = "删除数据失败！" });
+    }
+    
+    /// <summary>
+    /// 获取服务器启动时间
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("GetServerStartTime")]
+    public IActionResult GetServerStartTime ([FromBody] AdminRequestDataBase request)
+    {
+        if (!VerifyAdminAccount(request)) 
+            return Unauthorized(new ReturnLongData { Success = false, Message = "管理员认证失败！" });
+        
+        
+        var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+        var time = (long)(Program.StartTime.ToUniversalTime() - epoch).TotalMilliseconds;
+        
+        Console.WriteLine(time);
+        
+        return Ok(new ReturnLongData
+        {
+            Success = true,
+            Message = "获取数据成功！",
+            Data = time
+        });
+    }
+    
+    /// <summary>
+    /// 获取统计数据
+    /// </summary>
+    [HttpPost("GetStatisticalData")]
+    public IActionResult GetStatisticalData ([FromBody] AdminRequestDataBase request)
+    {
+        if (!VerifyAdminAccount(request)) 
+            return Unauthorized(new ReturnDataBase { Success = false, Message = "管理员认证失败！" });
+        
+        return Ok (new AdminReturnStatisticalData
+        {
+            Success = true,
+            Message = "获取数据成功！",
+            UserApiRequestsNumber = int.MaxValue,
+            UserApiRequestsSuccessfulSMSTotal = SMSDatabaseManager.Instance.GetAccessSMSTotal(),
+            SMSTotal = SMSDatabaseManager.Instance.GetSMSTotal(),
+            DisableSMSQuantity = SMSDatabaseManager.Instance.GetEnableSMSCount()
+        });
     }
 }

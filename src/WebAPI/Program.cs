@@ -3,6 +3,11 @@ namespace WebAPI;
 // ReSharper disable once ClassNeverInstantiated.Global
 public class Program
 {
+    /// <summary>
+    /// 启动时间
+    /// </summary>
+    public static DateTime StartTime = DateTime.Now;
+    
     public static void Main(string[] args)
     {
         var builder = WebApplication.CreateBuilder(args);

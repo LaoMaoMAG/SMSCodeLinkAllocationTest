@@ -16,34 +16,23 @@ public class NetworkEncryption
     public static NetworkEncryption Instance => _instance ??= new NetworkEncryption();
 
     /// <summary>
-    /// 网络加密密钥
-    /// </summary>
-    private string? _networkEncryptionKey;
-    
-    /// <summary>
     /// 私有构造函数
     /// </summary>
     private NetworkEncryption()
-    { 
-        // 检测管理员账户文件是否存在
-        if (File.Exists(DatabaseCoreConfig.NetworkEncryptionKeyFilePath))
-        {
-            _networkEncryptionKey = File.ReadAllText(DatabaseCoreConfig.AdminDataFilePath);
-        }
+    {
     }
 
     /// <summary>
     /// 设置网络加密密钥
     /// </summary>
     /// <param name="key">密钥：""（默认）为随机，null为不加密</param>
-    public void SetEncryptionKey(string? key = "")
+    public void SetEncryptionKey(string? key = null)
     {
-        if (key == "") _networkEncryptionKey = GenerateRandomString(32);
-        if (_networkEncryptionKey == null) key = "";
-        _networkEncryptionKey = key;
-        File.WriteAllText(DatabaseCoreConfig.NetworkEncryptionKeyFilePath, _networkEncryptionKey);
+        key = key?.Trim();
+        if (key == "") ConfigDatabase.Instance.UserAccessEncryptionKey = GenerateRandomString(32);
+        ConfigDatabase.Instance.UserAccessEncryptionKey = key;
     }
-    
+
     /// <summary>
     /// 加密数据
     /// </summary>
@@ -51,10 +40,12 @@ public class NetworkEncryption
     /// <returns>加密完成的数据</returns>
     public string? Encrypt(string data)
     {
-        if (string.IsNullOrEmpty(_networkEncryptionKey)) return data;
-        return _networkEncryptionKey == null ? null : RC4.Encrypt(_networkEncryptionKey, data);
+        if (string.IsNullOrEmpty(ConfigDatabase.Instance.UserAccessEncryptionKey)) return data;
+        return ConfigDatabase.Instance.UserAccessEncryptionKey == null
+            ? null
+            : RC4.Encrypt(ConfigDatabase.Instance.UserAccessEncryptionKey, data);
     }
-    
+
     /// <summary>
     /// 解密数据
     /// </summary>
@@ -62,10 +53,12 @@ public class NetworkEncryption
     /// <returns>解密完成的数据</returns>
     public string? Decrypt(string data)
     {
-        if (string.IsNullOrEmpty(_networkEncryptionKey)) return data;
-        return _networkEncryptionKey == null ? null : RC4.Decrypt(_networkEncryptionKey, data);
+        if (string.IsNullOrEmpty(ConfigDatabase.Instance.UserAccessEncryptionKey)) return data;
+        return ConfigDatabase.Instance.UserAccessEncryptionKey == null
+            ? null
+            : RC4.Decrypt(ConfigDatabase.Instance.UserAccessEncryptionKey, data);
     }
-    
+
     /// <summary>
     /// 生成指定长度的随机字符串
     /// </summary>
@@ -76,12 +69,7 @@ public class NetworkEncryption
         const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         var random = new Random();
         var result = new char[length];
-        
-        for (int i = 0; i < length; i++)
-        {
-            result[i] = chars[random.Next(chars.Length)];
-        }
-        
+        for (int i = 0; i < length; i++) result[i] = chars[random.Next(chars.Length)];
         return new string(result);
     }
 }

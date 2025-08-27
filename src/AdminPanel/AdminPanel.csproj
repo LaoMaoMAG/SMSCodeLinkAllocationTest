@@ -15,4 +15,19 @@
       <ProjectReference Include="..\APIModes\APIModes.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="Pages\Home.TableControl.razor.cs">
+        <DependentUpon>Home.razor</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\Home.AllDataOperations.cs">
+        <DependentUpon>Home.razor</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\Home.StatisticalData.razor.cs">
+        <DependentUpon>Home.razor</DependentUpon>
+      </Compile>
+      <Compile Update="Pages\Home.PopUpControl.razor.cs">
+        <DependentUpon>Home.razor</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
 </Project>

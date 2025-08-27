@@ -1,6 +1,6 @@
 namespace APIModes.RequestModes;
 
-public class AdminRequestStringDataBase : AdminRequestDataBase
+public class AdminRequestStringData : AdminRequestDataBase
 {
     public string? Data { get; set; }
 }

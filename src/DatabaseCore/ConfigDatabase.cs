@@ -1,3 +1,5 @@
+using DatabaseCore.DatabaseBase;
+
 namespace DatabaseCore;
 
 /// <summary>
@@ -73,5 +75,23 @@ public class ConfigDatabase : KvDatabaseBase
                 : GetValue<bool>("is_enable_user_multiple_visits_at_once");
         }
         set => SetValue("is_enable_user_multiple_visits_at_once", value);
+    }
+
+    /// <summary>
+    /// 用户访问密钥
+    /// </summary>
+    public string? UserAccessKey
+    {
+        get => GetValue<string?>("user_access_key");
+        set => SetValue("user_access_key", value);
+    }
+
+    /// <summary>
+    /// 用户访问加密密钥
+    /// </summary>
+    public string? UserAccessEncryptionKey
+    {
+        get => GetValue<string?>("user_access_encryption_key");
+        set => SetValue("user_access_encryption_key", value);
     }
 }

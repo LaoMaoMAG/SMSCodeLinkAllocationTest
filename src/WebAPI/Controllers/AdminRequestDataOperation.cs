@@ -1,3 +1,4 @@
+using APIModes;
 using APIModes.RequestModes;
 using APIModes.ReturnModes;
 using DatabaseCore;
@@ -13,7 +14,7 @@ public partial class AdminRequest
     /// <param name="requestString"></param>
     [HttpPost("AddSMS")]
     // ReSharper disable once InconsistentNaming
-    public IActionResult AddSMS([FromBody] AdminRequestStringDataBase requestString)
+    public IActionResult AddSMS([FromBody] AdminRequestStringData requestString)
     {
         if (!VerifyAdminAccount(requestString)) 
             return Unauthorized(new ReturnDataBase { Success = false, Message = "管理员认证失败！" });
@@ -35,7 +36,7 @@ public partial class AdminRequest
     /// <returns></returns>
     [HttpPost("AddMultipleSMS")]
     // ReSharper disable once InconsistentNaming
-    public IActionResult AddMultipleSMS([FromBody] AdminRequestStringListDataBase requestStringList)
+    public IActionResult AddMultipleSMS([FromBody] AdminRequestStringListData requestStringList)
     {
         if (!VerifyAdminAccount(requestStringList)) 
             return Unauthorized(new ReturnDataBase { Success = false, Message = "管理员认证失败！" });
@@ -154,10 +155,140 @@ public partial class AdminRequest
         {
             Success = true,
             Message = "获取数据成功！",
-            UserApiRequestsNumber = int.MaxValue,
+            UserApiRequestsNumber = ConfigDatabase.Instance.UserApiAccessCount,
             UserApiRequestsSuccessfulSMSTotal = SMSDatabaseManager.Instance.GetAccessSMSTotal(),
             SMSTotal = SMSDatabaseManager.Instance.GetSMSTotal(),
             DisableSMSQuantity = SMSDatabaseManager.Instance.GetEnableSMSCount()
         });
+    }
+
+    /// <summary>
+    /// 获取短信用户设置
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("GetUserSMSUserSettings")]
+    // ReSharper disable once InconsistentNaming
+    public IActionResult GetUserSMSUserSettings([FromBody] AdminRequestDataBase request)
+    {
+        if (!VerifyAdminAccount(request)) 
+            return Unauthorized(new ReturnDataBase { Success = false, Message = "管理员认证失败！" });
+        
+        return Ok(new AdminReturnUserSMSUserSettingsData
+        {
+            Success = true,
+            Message = "获取成功！",
+            Data = new UserSMSUserSettingsData
+            {
+                IsEnableUserAccessSMS = ConfigDatabase.Instance.IsEnableUserAccessSMS,
+                IsEnableUserMultipleVisitsAtOnceSMS = ConfigDatabase.Instance.IsEnableUserMultipleVisitsAtOnceSMS,
+                UserAccessKey = ConfigDatabase.Instance.UserAccessKey,
+                UserAccessEncryptionKey = ConfigDatabase.Instance.UserAccessEncryptionKey,
+            },
+        });
+    }
+    
+    /// <summary>
+    /// 设置短信用户设置
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("SetUserSMSUserSettings")]
+    // ReSharper disable once InconsistentNaming
+    public IActionResult SetUserSMSUserSettings([FromBody] AdminRequestUserSMSUserSettingsData request)
+    {
+        if (!VerifyAdminAccount(request)) 
+            return Unauthorized(new ReturnDataBase { Success = false, Message = "管理员认证失败！" });
+
+        if (request.Data == null) 
+            return BadRequest(new ReturnDataBase { Success = false, Message = "Data 不能为空！" });
+        
+        ConfigDatabase.Instance.IsEnableUserAccessSMS = request.Data.IsEnableUserAccessSMS;
+        ConfigDatabase.Instance.IsEnableUserMultipleVisitsAtOnceSMS = request.Data.IsEnableUserMultipleVisitsAtOnceSMS;
+        ConfigDatabase.Instance.UserAccessKey = request.Data.UserAccessKey;
+        ConfigDatabase.Instance.UserAccessEncryptionKey = request.Data.UserAccessEncryptionKey;
+        
+        return Ok(new ReturnDataBase
+        {
+            Success = true,
+            Message = "设置成功！",
+        });
+    }
+
+    /// <summary>
+    /// 获取所有短信内容
+    /// </summary>
+    /// <param name="request"></param>
+    /// <returns></returns>
+    [HttpPost("GetAllSMSContent")]
+    // ReSharper disable once InconsistentNaming
+    public IActionResult GetAllSMSContent([FromBody] AdminRequestDataBase request)
+    {
+        if (!VerifyAdminAccount(request)) 
+            return Unauthorized(new ReturnDataBase { Success = false, Message = "管理员认证失败！" });
+        
+        var data = SMSDatabaseManager.Instance.GetAllSMSContent();
+        
+        return data == null
+            ? Ok(new ReturnStringListData { Success = false, Message = "获取数据失败！" })
+            : Ok(new ReturnStringListData
+            {
+                Success = true,
+                Message = "获取成功！",
+                Data = data
+            });
+    }
+
+    /// <summary>
+    /// 禁用短信
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost("DisableSMS")]
+    // ReSharper disable once InconsistentNaming
+    public IActionResult DisableSMS([FromBody] AdminRequestStringListData request)
+    {
+        if (!VerifyAdminAccount(request)) 
+            return Unauthorized(new ReturnDataBase { Success = false, Message = "管理员认证失败！" });
+        
+        if (request.Data == null) 
+            return BadRequest(new ReturnDataBase { Success = false, Message = "数据不能为空！" });
+        
+        var isSuccess = SMSDatabaseManager.Instance.DisableSMS(request.Data);
+
+        if (!isSuccess)
+        {
+            return Ok(new ReturnDataBase
+            {
+                Success = false,
+                Message = "禁用失败！",
+            });
+        }
+        
+        return Ok(new ReturnDataBase
+        {
+            Success = true,
+            Message = "禁用成功！",
+        });
+    }
+    
+    /// <summary>
+    /// 删除短信
+    /// </summary>
+    /// <returns></returns>
+    [HttpPost("DeleteSMS")]
+    // ReSharper disable once InconsistentNaming
+    public IActionResult DeleteSMS([FromBody] AdminRequestStringListData request)
+    {
+        if (!VerifyAdminAccount(request)) 
+            return Unauthorized(new ReturnDataBase { Success = false, Message = "管理员认证失败！" });
+        
+        if (request.Data == null) 
+            return BadRequest(new ReturnDataBase { Success = false, Message = "Data 不能为空！" });
+        
+        var isSuccess = SMSDatabaseManager.Instance.DeleteSMS(request.Data);
+        
+        return Ok(isSuccess
+            ? new ReturnDataBase { Success = true, Message = "删除数据成功！" }
+            : new ReturnDataBase { Success = false, Message = "删除数据失败！" });
     }
 }

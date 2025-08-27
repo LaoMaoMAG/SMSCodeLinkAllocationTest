@@ -1,6 +1,6 @@
 using LiteDB;
 
-namespace DatabaseCore;
+namespace DatabaseCore.DatabaseBase;
 
 /// <summary>
 /// KV数据库基础类
@@ -55,7 +55,7 @@ public abstract class KvDatabaseBase
     /// <param name="defaultValue">默认值</param>
     /// <typeparam name="T">值的类型</typeparam>
     /// <returns>键对应的值，如果不存在则返回默认值</returns>
-    protected T? GetValue<T>(string key, T defaultValue = default)
+    protected T? GetValue<T>(string key, T? defaultValue = default)
     {
         using var db = new LiteDatabase(DbFilePath);
         var col = db.GetCollection<KvDatabaseData<T>>(ConfigTableName);

@@ -3,18 +3,18 @@
 
 <div class="home-container">
     <!-- 顶部提示框 -->
-    @if (showToast)
+    @if (_showToast)
     {
-        <div class="home-toast-container @(toastType)">
+        <div class="home-toast-container @(_toastType)">
             <div class="home-toast-content">
-                <span class="home-toast-message">@toastMessage</span>
+                <span class="home-toast-message">@_toastMessage</span>
                 <button class="home-toast-close" @onclick="CloseToast">&times;</button>
             </div>
         </div>
     }
 
     <!-- 加载弹窗 -->
-    @if (isLoading)
+    @if (_isLoading)
     {
         <div class="home-loading-overlay">
             <div class="home-loading-content">
@@ -78,19 +78,19 @@
                     
                     <div class="home-uptime-display">
                         <div class="home-uptime-item">
-                            <span class="home-uptime-value">@uptime.Days</span>
+                            <span class="home-uptime-value">@_uptime.Days</span>
                             <span class="home-uptime-label">天</span>
                         </div>
                         <div class="home-uptime-item">
-                            <span class="home-uptime-value">@uptime.Hours</span>
+                            <span class="home-uptime-value">@_uptime.Hours</span>
                             <span class="home-uptime-label">时</span>
                         </div>
                         <div class="home-uptime-item">
-                            <span class="home-uptime-value">@uptime.Minutes</span>
+                            <span class="home-uptime-value">@_uptime.Minutes</span>
                             <span class="home-uptime-label">分</span>
                         </div>
                         <div class="home-uptime-item">
-                            <span class="home-uptime-value">@uptime.Seconds</span>
+                            <span class="home-uptime-value">@_uptime.Seconds</span>
                             <span class="home-uptime-label">秒</span>
                         </div>
                     </div>
@@ -105,31 +105,25 @@
                     <div class="home-config-item">
                         <span class="home-config-label">接码访问</span>
                         <div class="home-toggle-switch">
-                            <input type="checkbox" id="autoRefresh" class="home-toggle-input" checked="@autoRefresh" />
-                            <label for="autoRefresh" class="home-toggle-label @(autoRefresh ? "home-toggle-checked" : "")">
-                                <span class="home-toggle-slider @(autoRefresh ? "home-toggle-slider-checked" : "")"></span>
-                            </label>
+                           
                         </div>
                     </div>
                     
                     <div class="home-config-item">
                         <span class="home-config-label">允许单次多个接码</span>
                         <div class="home-toggle-switch">
-                            <input type="checkbox" id="autoRefresh" class="home-toggle-input" checked="@autoRefresh" />
-                            <label for="autoRefresh" class="home-toggle-label @(autoRefresh ? "home-toggle-checked" : "")">
-                                <span class="home-toggle-slider @(autoRefresh ? "home-toggle-slider-checked" : "")"></span>
-                            </label>
+                            
                         </div>
                     </div>
 
                     <div class="home-config-item">
                         <span class="home-config-label">接码密钥</span>
-                        <input type="password" class="home-input-number" style="width: 200px" value="@maxConcurrent" min="1" max="100" @onchange="e => maxConcurrent = int.Parse(e.Value.ToString())"/>
+                        <input type="password" class="home-input-number" style="width: 200px"/>
                     </div>
 
                     <div class="home-config-actions">
                         <button class="home-btn home-btn-default" style="background-color: #0c63e4; color: white">刷新</button>
-                        <button class="home-btn home-btn-primary" @onclick="SaveConfig">保存</button>
+                        <button class="home-btn home-btn-primary">保存</button>
                     </div>
                 </div>
             </div>

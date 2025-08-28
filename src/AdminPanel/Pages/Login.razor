@@ -5,178 +5,532 @@
 
 @inject HttpClient Http
 @inject IJSRuntime JsRuntime
+@inject NavigationManager Navigation
 
-<div class="auth-container">
-    <div class="card">
-        <img src="images/logo.png" alt="Logo" class="logo" />
-        <h2 class="title">@Title</h2>
-        <p class="subtitle">@Subtitle</p>
+<div class="login-container">
+    <canvas id="login-particleCanvas"></canvas>
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-logo-wrapper">
+                <div class="login-logo-circle">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                         class="login-logo-icon">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    </svg>
+                </div>
+            </div>
+            <h1 class="login-title">@Title</h1>
+            <p class="login-subtitle">@Subtitle</p>
+        </div>
 
-        <form @onsubmit="HandleFormSubmit" autocomplete="on">
-            <div class="form-group">
-                <label for="username">用户名</label>
-                <input 
-                    id="username" 
-                    name="username"
-                    type="text" 
-                    placeholder="请输入管理员用户名" 
-                    @bind="Username"
-                    autocomplete="username"
-                    class="input-field" />
+        <form @onsubmit="HandleFormSubmit" autocomplete="on" class="login-form">
+            <div class="login-form-group">
+                <label for="username" class="login-form-label">用户名</label>
+                <div class="login-input-wrapper">
+                    <div class="login-input-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                            <circle cx="12" cy="7" r="4"></circle>
+                        </svg>
+                    </div>
+                    <input
+                        id="username"
+                        name="username"
+                        type="text"
+                        placeholder="请输入管理员用户名"
+                        @bind="Username"
+                        autocomplete="username"
+                        class="login-form-control"
+                        required/>
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="password">密码</label>
-                <input 
-                    id="password"
-                    name="password"
-                    type="password" 
-                    placeholder="请输入管理员密码" 
-                    @bind="Password"
-                    autocomplete="current-password"
-                    class="input-field" />
+            <div class="login-form-group">
+                <label for="password" class="login-form-label">密码</label>
+                <div class="login-input-wrapper">
+                    <div class="login-input-icon">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                             stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                        </svg>
+                    </div>
+                    <input
+                        id="password"
+                        name="password"
+                        type="password"
+                        placeholder="请输入管理员密码"
+                        @bind="Password"
+                        autocomplete="current-password"
+                        class="login-form-control"
+                        required/>
+                </div>
             </div>
 
-            <button class="init-btn" type="submit">
-                @ButtonLabel
+            @if (!IsInitializationMode)
+            {
+                <div class="login-form-group">
+                    <label for="expireDays" class="login-form-label">登录状态保存时长</label>
+                    <div class="login-select-wrapper">
+                        <select id="expireDays" class="login-form-control login-select-control" @bind="ExpireDays">
+                            <option value="1">1天</option>
+                            <option value="7" selected>7天</option>
+                            <option value="30">30天</option>
+                            <option value="90">90天</option>
+                            <option value="365">1年</option>
+                            <option value="0">永久</option>
+                        </select>
+                    </div>
+                </div>
+            }
+
+            <button class="login-btn" type="submit" disabled="@IsSubmitting">
+                @if (IsSubmitting)
+                {
+                    <div class="login-btn-spinner"></div>
+                }
+                <span class="login-btn-text">@ButtonLabel</span>
             </button>
         </form>
-    
+
+        @if (ErrorMessage != null)
+        {
+            <div class="login-error-alert">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                     stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="12"></line>
+                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+                <span>@ErrorMessage</span>
+            </div>
+        }
+    </div>
+
+    <div class="login-footer">
+        <p>&copy; 2025 短信验证码管理系统. 保留所有权利.</p>
     </div>
 </div>
 
 <style>
-    .auth-container {
+    .login-container {
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         min-height: 100vh;
-        background-size: cover;
-        background-position: center;
-        background-repeat: no-repeat;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        background-size: 400% 400%;
+        animation: login-gradientShift 15s ease infinite;
         font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         padding: 20px;
+        position: relative;
+        overflow: hidden;
     }
 
-    .card {
-        background: white;
+    @@keyframes login-gradientShift {
+        0% {
+            background-position: 0 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0 50%;
+        }
+    }
+
+    #login-particleCanvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 1;
+    }
+
+    .login-card {
+        background: rgba(255, 255, 255, 0.95);
         border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
         padding: 40px;
         width: 100%;
-        max-width: 400px;
+        max-width: 420px;
         text-align: center;
-        transition: transform 0.3s ease;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.25);
+        position: relative;
+        z-index: 10;
     }
 
-    .card:hover {
+    .login-card:hover {
         transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
     }
 
-    .logo {
-        width: 120px;
-        height: 120px;
-        margin: 0 auto 20px auto; /* 左右自动边距 */
-    }
-
-    .title {
-        font-size: 24px;
-        color: #333;
-        margin: 0 0 8px 0;
-        font-weight: 600;
-    }
-
-    .subtitle {
-        color: #666;
-        font-size: 14px;
+    .login-header {
         margin-bottom: 30px;
     }
 
-    .form-group {
+    .login-logo-wrapper {
+        display: flex;
+        justify-content: center;
         margin-bottom: 20px;
+    }
+
+    .login-logo-circle {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #4361ee, #3a0ca3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4);
+        border: 3px solid white;
+    }
+
+    .login-logo-icon {
+        color: white;
+    }
+
+    .login-title {
+        font-size: 26px;
+        color: #333;
+        margin: 0 0 8px 0;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+    }
+
+    .login-subtitle {
+        color: #666;
+        font-size: 15px;
+        margin-bottom: 0;
+    }
+
+    .login-form {
+        margin-top: 20px;
+    }
+
+    .login-form-group {
+        margin-bottom: 24px;
         text-align: left;
     }
 
-    .form-group label {
+    .login-form-label {
         display: block;
         margin-bottom: 8px;
-        font-size: 14px;
-        color: #555;
+        font-size: 15px;
+        color: #444;
         font-weight: 500;
     }
 
-    .input-field {
+    .login-input-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .login-input-icon {
+        position: absolute;
+        left: 15px;
+        color: #777;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .login-form-control {
         width: 100%;
-        padding: 12px 16px;
+        padding: 14px 16px 14px 45px;
         border: 1px solid #ddd;
-        border-radius: 8px;
-        font-size: 14px;
-        transition: border-color 0.3s ease;
+        border-radius: 10px;
+        font-size: 15px;
+        transition: all 0.3s ease;
         box-sizing: border-box;
+        background: #f9f9f9;
+        color: #333;
     }
 
-    .input-field:focus {
+    .login-form-control:focus {
         outline: none;
-        border-color: #2575fc;
-        box-shadow: 0 0 0 2px rgba(37, 117, 252, 0.2);
+        border-color: #4361ee;
+        box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+        background: white;
     }
 
-    .init-btn {
-        margin-top: 10px;
+    .login-select-wrapper {
+        position: relative;
+    }
+
+    .login-select-control {
+        padding: 12px 40px 12px 16px;
+        appearance: none;
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+        background-repeat: no-repeat;
+        background-position: right 15px center;
+        background-size: 16px;
+    }
+
+    .login-btn {
         width: 100%;
-        padding: 14px;
-        background: linear-gradient(to right, #6a11cb, #2575fc);
+        padding: 15px;
+        background: linear-gradient(90deg, #4361ee, #3a0ca3);
         color: white;
         border: none;
-        border-radius: 8px;
+        border-radius: 10px;
         font-size: 16px;
         font-weight: 600;
         cursor: pointer;
         transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        position: relative;
+        overflow: hidden;
+        margin-top: 10px;
     }
 
-    .init-btn:hover {
-        background: linear-gradient(to right, #5a0fb4, #1d6aec);
+    .login-btn:hover:not(:disabled) {
+        background: linear-gradient(90deg, #3a0ca3, #4361ee);
         transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(37, 117, 252, 0.3);
+        box-shadow: 0 7px 20px rgba(67, 97, 238, 0.4);
     }
 
-    .init-btn:active {
+    .login-btn:active:not(:disabled) {
         transform: translateY(0);
     }
+
+    .login-btn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    .login-btn-spinner {
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: login-spin 1s linear infinite;
+    }
+
+    @@keyframes login-spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .login-error-alert {
+        margin-top: 20px;
+        padding: 15px;
+        background-color: #ffebee;
+        color: #c62828;
+        border-radius: 10px;
+        font-size: 14px;
+        border: 1px solid #ffcdd2;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .login-footer {
+        margin-top: 30px;
+        color: rgba(255, 255, 255, 0.8);
+        text-align: center;
+        font-size: 14px;
+        z-index: 10;
+    }
+
+    @@media (max-width: 480px) {
+        .login-card {
+            padding: 30px 20px;
+            margin: 0 10px;
+        }
+
+        .login-title {
+            font-size: 24px;
+        }
+
+        .login-form-control {
+            padding: 12px 14px 12px 40px;
+            font-size: 16px;
+        }
+
+        .login-logo-circle {
+            width: 70px;
+            height: 70px;
+        }
+
+        .login-select-control {
+            padding: 10px 30px 10px 14px;
+            font-size: 15px;
+        }
+    }
 </style>
+
+<script>
+    window.initializeParticleBackground = () => {
+        const canvas = document.getElementById('login-particleCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // 设置画布大小
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // 粒子类
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.speedY = Math.random() * 1 - 0.5;
+                this.color = `rgba(255, 255, 255, ${Math.random() * 0.5 + 0.1})`;
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // 边界检查
+                if (this.x > canvas.width || this.x < 0) this.speedX = -this.speedX;
+                if (this.y > canvas.height || this.y < 0) this.speedY = -this.speedY;
+            }
+
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // 创建粒子数组
+        const particles = [];
+        const particleCount = Math.min(100, Math.floor((window.innerWidth * window.innerHeight) / 5000));
+
+        for (let i = 0; i < particleCount; i++) {
+            particles.push(new Particle());
+        }
+
+        // 连线距离
+        const connectDistance = 100;
+
+        // 动画循环
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 更新和绘制粒子
+            for (let i = 0; i < particles.length; i++) {
+                particles[i].update();
+                particles[i].draw();
+            }
+
+            // 绘制粒子之间的连线
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < connectDistance) {
+                        const opacity = 1 - distance / connectDistance;
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.2})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.beginPath();
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            requestAnimationFrame(animate);
+        }
+
+        animate();
+
+        // 鼠标交互
+        let mouseX = undefined;
+        let mouseY = undefined;
+
+        canvas.addEventListener('mousemove', (e) => {
+            mouseX = e.x;
+            mouseY = e.y;
+        });
+
+        canvas.addEventListener('mouseleave', () => {
+            mouseX = undefined;
+            mouseY = undefined;
+        });
+    };
+</script>
 
 @code {
     private string Username { get; set; } = "";
     private string Password { get; set; } = "";
-    
-    [Inject]
-    private NavigationManager Navigation { get; set; } = default!;
+    private int ExpireDays { get; set; } = 7;
+    private bool IsSubmitting { get; set; } = false;
+    private string? ErrorMessage { get; set; } = null;
 
-    private string Title => Navigation.ToAbsoluteUri(Navigation.Uri).LocalPath.Equals("/InitAdmin", StringComparison.OrdinalIgnoreCase) 
-        ? "初始化管理员账户" 
+    private string Title => IsInitializationMode
+        ? "初始化管理员账户"
         : "管理员认证";
-        
-    private string Subtitle => Navigation.ToAbsoluteUri(Navigation.Uri).LocalPath.Equals("/InitAdmin", StringComparison.OrdinalIgnoreCase) 
-        ? "初始化您的管理员账户" 
-        : "登陆您的管理员账户";
-        
-    private string ButtonLabel => Navigation.ToAbsoluteUri(Navigation.Uri).LocalPath.Equals("/InitAdmin", StringComparison.OrdinalIgnoreCase) 
-        ? "初始化账户" 
-        : "登陆账户";
+
+    private string Subtitle => IsInitializationMode
+        ? "初始化您的管理员账户"
+        : "登录您的管理员账户";
+
+    private string ButtonLabel => IsInitializationMode
+        ? "初始化账户"
+        : "登录账户";
 
     private bool IsInitializationMode => Navigation.ToAbsoluteUri(Navigation.Uri).LocalPath
         .Equals("/InitAdmin", StringComparison.OrdinalIgnoreCase);
-    
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JsRuntime.InvokeVoidAsync("initializeParticleBackground");
+        }
+    }
+
     /// <summary>
     /// 处理表单提交
     /// </summary>
     private async Task HandleFormSubmit(EventArgs e)
     {
-        if (IsInitializationMode) 
+        ErrorMessage = null;
+        IsSubmitting = true;
+
+        if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
+        {
+            ErrorMessage = "用户名和密码不能为空";
+            IsSubmitting = false;
+            return;
+        }
+
+        if (IsInitializationMode)
             await InitAdminAccount();
-        else 
+        else
             await LoginAdminAccount();
+
+        IsSubmitting = false;
     }
 
     /// <summary>
@@ -192,30 +546,37 @@
                 Username = Username,
                 Password = Password
             });
-            
+
             if (response.IsSuccessStatusCode)
             {
                 var statusData = await response.Content.ReadFromJsonAsync<ReturnDataBase>();
                 if (statusData == null)
                 {
-                    await JsRuntime.InvokeVoidAsync("alert", "服务端未返回数据！");
+                    ErrorMessage = "服务端未返回数据！";
                     return;
                 }
-                await JsRuntime.InvokeVoidAsync("alert", statusData.Message);
-                if (!statusData.Success) return;
-                Navigation.NavigateTo("/Login", forceLoad: true);
+
+                if (statusData.Success)
+                {
+                    await JsRuntime.InvokeVoidAsync("alert", "账户初始化成功！");
+                    Navigation.NavigateTo("/Login", forceLoad: true);
+                }
+                else
+                {
+                    ErrorMessage = statusData.Message;
+                }
             }
             else
             {
-                await JsRuntime.InvokeVoidAsync("alert", $"HTTP状态码错误：{response.StatusCode}");
+                ErrorMessage = $"HTTP状态码错误：{response.StatusCode}";
             }
         }
         catch (Exception ex)
         {
-            await JsRuntime.InvokeVoidAsync("alert", $"发生错误: {ex.Message}");
+            ErrorMessage = $"发生错误: {ex.Message}";
         }
     }
-    
+
     /// <summary>
     /// 登录管理员账户
     /// </summary>
@@ -229,14 +590,22 @@
                 Username = Username,
                 Password = Password
             });
-            
+
             if (response.IsSuccessStatusCode)
             {
                 var cookieService = new CookieService(JsRuntime);
-                await cookieService.SetCookie("username", Username, 7);
-                await cookieService.SetCookie("password", Password, 7);
-                
-                await JsRuntime.InvokeVoidAsync("alert", "登录成功！");
+// 如果选择永久保存，则不设置过期时间
+                if (ExpireDays == 0)
+                {
+                    await cookieService.SetCookie("username", Username);
+                    await cookieService.SetCookie("password", Password);
+                }
+                else
+                {
+                    await cookieService.SetCookie("username", Username, ExpireDays);
+                    await cookieService.SetCookie("password", Password, ExpireDays);
+                }
+
                 Navigation.NavigateTo("/Home", forceLoad: true);
             }
             else
@@ -244,16 +613,28 @@
                 var statusData = await response.Content.ReadFromJsonAsync<ReturnIntData>();
                 if (statusData == null)
                 {
-                    await JsRuntime.InvokeVoidAsync("alert", "服务端未返回数据！");
+                    ErrorMessage = "服务端未返回数据！";
                     return;
                 }
-                await JsRuntime.InvokeVoidAsync("alert", $"{statusData.Message}");
+
+                switch (statusData.Data)
+                {
+                    case 1:
+                        ErrorMessage = "用户名或密码错误";
+                        break;
+                    case 2:
+                        ErrorMessage = "账户已被锁定，请稍后再试";
+                        break;
+                    default:
+                        ErrorMessage = statusData.Message;
+                        break;
+                }
             }
         }
         catch (Exception e)
         {
-            Console.WriteLine(e);
-            throw;
+            ErrorMessage = $"登录过程中发生错误: {e.Message}";
         }
     }
+
 }

@@ -11,16 +11,6 @@ namespace AdminPanel.Pages;
 public partial class Home
 {
     /// <summary>
-    /// 导入数据对话框
-    /// </summary>
-    private Dialog _importDataDialog = null!;
-    
-    /// <summary>
-    /// 删除所有数据对话框
-    /// </summary>
-    private Dialog _deleteAllDataDialog = null!;
-    
-    /// <summary>
     /// 最小号码
     /// </summary>
     private int _miniNumber = 0;
@@ -34,36 +24,7 @@ public partial class Home
     /// 表格每页显示数量
     /// </summary>
     private int TablePageSize { get; set; } = 20;
-
-   
-    // 示例：全选/取消全选
-    private bool _selectAll;
-
-    /// <summary>
-    /// 全选/取消全选
-    /// </summary>
-    /// <param name="e"></param>
-    private async Task HandleSelectAllChanged(ChangeEventArgs e)
-    {
-        if (e.Value is bool value)
-        {
-            _selectAll = value;
-        }
-        // 执行全选逻辑
-        ToggleSelectAll();
-    }
-
-    /// <summary>
-    /// 批量操作
-    /// </summary>
-    private void ToggleSelectAll()
-    {
-        foreach (var item in items)
-        {
-            item.IsSelected = _selectAll;
-        }
-    }
-
+    
     /// <summary>
     /// 列表项数据
     /// </summary>
@@ -73,7 +34,7 @@ public partial class Home
         public bool IsSelected { get; set; } = false;
     }
     
-     /// <summary>
+    /// <summary>
     /// 表格每页显示数量选择对话框
     /// </summary>
     private async Task OnSelectionTablePageSizeChanged()
@@ -199,19 +160,20 @@ public partial class Home
                 _maxNumber = (int)jsonData.MaxNumber!;
                 TotalPages = (int)jsonData.TotalPages!;
 
-                items.Clear();
+                _items.Clear();
 
                 if (jsonData.SMSList == null) return;
 
                 foreach (var data in jsonData.SMSList)
                 {
-                    items.Add(new ItemData(data.Content)
+                    _items.Add(new ItemData(data.Content)
                     {
                         Id = data.Id,
                         IsEnable = data.IsEnable,
                         AccessCount = data.AccessCount,
                         LastAccessTime = data.LastAccessTime,
                         CreateTime = data.CreateTime,
+                        IsSelected = _isSelectAll
                     });
                 }
 
@@ -230,6 +192,13 @@ public partial class Home
     /// <summary>
     /// 数据列表
     /// </summary>
-    private List<ItemData> items = new();
+    private readonly List<ItemData> _items = new();
 
+    /// <summary>
+    /// 刷新数据列表
+    /// </summary>
+    private async Task OnRefreshTableChanged()
+    {
+        await GoToPage(CurrentPage);
+    }
 }

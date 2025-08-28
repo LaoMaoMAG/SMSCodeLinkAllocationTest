@@ -33,7 +33,7 @@ public class SMSDatabaseData(string content)
     /// <summary>
     /// 最后访问时间
     /// </summary>
-    public DateTime LastAccessTime { get; set; } = DateTime.Now;
+    public DateTime LastAccessTime { get; set; } = DateTime.MinValue;
     
     /// <summary>
     /// 创建时间

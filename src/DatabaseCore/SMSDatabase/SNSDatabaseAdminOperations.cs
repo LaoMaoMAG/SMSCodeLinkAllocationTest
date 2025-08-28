@@ -15,6 +15,7 @@ public partial class SMSDatabaseManager
             Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                col.EnsureIndex(x => x.Content, true); // 唯一
                 
                 foreach (var content in contentList)
                 {
@@ -50,6 +51,7 @@ public partial class SMSDatabaseManager
             Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                col.EnsureIndex(x => x.Content, true); // 唯一
                 col.DeleteMany(x => content.Contains(x.Content)); // 修改这里
             });
             return true;
@@ -156,6 +158,7 @@ public partial class SMSDatabaseManager
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
                 return col.FindAll().Sum(x => x.AccessCount);
             });
+            return 0;
         }
         catch (InvalidOperationException)
         {
@@ -164,18 +167,19 @@ public partial class SMSDatabaseManager
     }
     
     /// <summary>
-    /// 获取禁用短信总数
+    /// 获取启用短信总数
     /// </summary>
     // ReSharper disable once InconsistentNaming
-    public int GetDisableSMSCount()
+    public int GetEnableSMSCount()
     {
         try
         {
-            return Execute(db =>
+            Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
-                return col.FindAll().Count(x => !x.IsEnable);
+                return col.FindAll().Count(x => x.IsEnable);
             });
+            return 0;
         }
         catch (InvalidOperationException)
         {
@@ -184,25 +188,26 @@ public partial class SMSDatabaseManager
     }
 
     /// <summary>
-    /// 设置短信是否启用
+    /// 禁用短信
     /// </summary>
     /// <param name="content">要禁用的短信内容列表</param>
-    /// <param name="isEnable"></param>
     /// <returns>操作是否成功</returns>
     // ReSharper disable once InconsistentNaming
     // ReSharper disable once MemberCanBePrivate.Global
-    public bool SetSMSIsEnable(List<string> content, bool isEnable)
+    public bool DisableSMS(List<string> content)
     {
         try
         {
             Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                col.EnsureIndex(x => x.Content, true); // 确保唯一索引
+            
                 // 查找需要禁用的短信并更新其 IsEnable 状态
                 var smsToUpdate = col.Find(x => content.Contains(x.Content)).ToList();
                 foreach (var sms in smsToUpdate)
                 {
-                    sms.IsEnable = isEnable;
+                    sms.IsEnable = false;
                     col.Update(sms);
                 }
             });
@@ -215,15 +220,14 @@ public partial class SMSDatabaseManager
     }
 
     /// <summary>
-    /// 设置短信是否启用
+    /// 禁用单条短信
     /// </summary>
     /// <param name="content">要禁用的短信内容</param>
-    /// <param name="isEnable"></param>
     /// <returns>操作是否成功</returns>
     // ReSharper disable once InconsistentNaming
-    public bool SetSMSIsEnable(string content, bool isEnable)
+    public bool DisableSMS(string content)
     {
-        return SetSMSIsEnable([content], isEnable);
+        return DisableSMS([content]);
     }
 
     /// <summary>

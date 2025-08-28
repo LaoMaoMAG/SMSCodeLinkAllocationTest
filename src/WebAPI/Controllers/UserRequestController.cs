@@ -59,15 +59,12 @@ public class UserRequestController : ControllerBase
             Success = false,
             Message = "获取失败！"
         });
-
-        var encryptData = NetworkEncryption.Instance.Encrypt(data,out var aesIv);
         
         return Ok(new ReturnStringData
         {
             Success = true,
             Message = "获取成功！",
-            Data = encryptData,
-            AesIv = aesIv
+            Data = NetworkEncryption.Instance.Encrypt(data)
         });
     }
 
@@ -123,16 +120,13 @@ public class UserRequestController : ControllerBase
         });
         
         // 将data对象转换为JSON字符串
-        var jsonData = JsonSerializer.Serialize(data);
+        var jsonData = System.Text.Json.JsonSerializer.Serialize(data);
     
-        var encryptData = NetworkEncryption.Instance.Encrypt(data,out var aesIv);
-        
         return Ok(new ReturnStringData
         {
             Success = true,
             Message = "获取成功！",
-            Data = encryptData,
-            AesIv = aesIv
+            Data = NetworkEncryption.Instance.Encrypt(jsonData)
         });
     }
 }

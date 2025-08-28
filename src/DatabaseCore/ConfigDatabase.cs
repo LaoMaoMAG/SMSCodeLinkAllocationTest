@@ -51,9 +51,11 @@ public class ConfigDatabase : KvDatabaseBase
     {
         get
         {
-            if (!ContainsKey("is_enable_user_access_sms"))
-                SetValue("is_enable_user_access_sms", true); // 默认值
-            return GetValue<bool>("is_enable_user_access_sms");
+            // ReSharper disable once ConvertToConstant.Local
+            var defaultValue = true; // 默认值
+            return !ContainsKey("is_enable_user_access_sms")
+                ? defaultValue
+                : GetValue<bool>("is_enable_user_access_sms");
         }
         set => SetValue("is_enable_user_access_sms", value);
     }
@@ -66,9 +68,11 @@ public class ConfigDatabase : KvDatabaseBase
     {
         get
         {
-            if (!ContainsKey("is_enable_user_multiple_visits_at_once"))
-                SetValue("is_enable_user_multiple_visits_at_once", true); // 默认值
-            return GetValue<bool>("is_enable_user_multiple_visits_at_once");
+            // ReSharper disable once ConvertToConstant.Local
+            var defaultValue = true; // 默认值
+            return !ContainsKey("is_enable_user_multiple_visits_at_once")
+                ? defaultValue
+                : GetValue<bool>("is_enable_user_multiple_visits_at_once");
         }
         set => SetValue("is_enable_user_multiple_visits_at_once", value);
     }

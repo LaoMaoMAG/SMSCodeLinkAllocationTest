@@ -28,16 +28,6 @@
       <Compile Update="Pages\Home.PopUpControl.razor.cs">
         <DependentUpon>Home.razor</DependentUpon>
       </Compile>
-      <Compile Update="Pages\Home.UserAccessMSMSettings.razor.cs">
-        <DependentUpon>Home.razor</DependentUpon>
-      </Compile>
-      <Compile Update="Pages\Home.BatchOperation.razor.cs">
-        <DependentUpon>Home.razor</DependentUpon>
-      </Compile>
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="wwwroot\fonts\" />
     </ItemGroup>
 
 </Project>

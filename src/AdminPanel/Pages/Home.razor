@@ -23,163 +23,59 @@
             </div>
         </div>
     }
-
-    <Dialog @ref="_LogoutDialog" Title="退出登录" Type="Dialog.DialogType.Warning" OnConfirm="Logout"
-            ConfirmText="注销">
-        <p>确认后将会退出当前账号！</p>
-    </Dialog>
-
-    <Dialog @ref="_deleteAllDataDialog" Title="危险操作" Type="Dialog.DialogType.Warning" OnConfirm="DeleteAllData"
-            ConfirmText="删除">
+    
+    <Dialog @ref="_deleteAllDataDialog" Title="危险操作" Type="Dialog.DialogType.Warning" OnConfirm="DeleteAllData" ConfirmText="删除">
         <p>您正在删除整个数据库，此操作不可恢复！</p>
         <div class="text-warning">⚠️ 请确认您有完整备份。</div>
     </Dialog>
-
-    <Dialog @ref="_deleteTableSelectionItemDialog" Title="删除数据" Type="Dialog.DialogType.Warning"
-            OnConfirm="DeleteTableSelectionItem"
-            ConfirmText="删除">
-        <p>是否删除这些数据？</p>
-        <div class="text-warning">⚠️ 删除后的数据将无法恢复！</div>
-    </Dialog>
-
-    <Dialog @ref="_importDataDialog" Title="导入数据" Type="Dialog.DialogType.Info" OnConfirm="ImportData"
-            ConfirmText="选择文件">
+    
+    <Dialog @ref="_importDataDialog" Title="导入数据" Type="Dialog.DialogType.Info" OnConfirm="ImportData" ConfirmText="选择文件">
         <p>确认要导入数据吗？</p>
         <p>点击选择文件按钮后请选择 TXT 文件，文件里请每一行一个项目！</p>
-    </Dialog>
-
-    <Dialog @ref="_exportDataDialog" Title="导出数据" Type="Dialog.DialogType.Info" OnConfirm="ExportAllData"
-            ConfirmText="导出文件">
-        <p>确认要导出全部数据？</p>
-        <p>如果数据较大，将要耗费大量时间，请耐心等待。</p>
     </Dialog>
 
     <!-- 顶部导航栏 -->
     <div class="home-navbar">
         <div class="home-navbar-content">
-            <div class="home-brand">
-                <div class="home-logo">
-                    <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="2"
-                         stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
-                        <polyline points="22 4 12 14.01 9 11.01"></polyline>
-                    </svg>
-                </div>
-                <b class="home-title">接码分配管理面板</b>
-            </div>
-
-            <div class="home-search-container">
-                <div class="home-search-box">
-                    <input type="text" class="home-search-input" placeholder="搜索内容..."/>
-                    <button class="home-search-btn">
-                        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-                             stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <circle cx="11" cy="11" r="8"></circle>
-                            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-
+            <b class="home-title">接码分配管理面板</b>
             <div class="home-user-info">
-                <img src="images/head.jpeg" alt="管理员头像" class="home-avatar"/>
+                <img src="images/head.jpg" alt="管理员头像" class="home-avatar"/>
                 <span class="home-welcome">Hello! <strong>@_username</strong></span>
-                <button class="home-logout-btn" @onclick="OnLogoutClicked" title="退出登录">
-                    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"
-                         stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
-                    <span>注销</span>
-                </button>
             </div>
         </div>
     </div>
 
     <!-- 中部面板 -->
     <div class="home-main-content">
-        <!-- 左侧面板 -->
+        <!-- 左侧两个卡片 -->
         <div class="home-left-column home-scrollbar">
             <div class="home-card home-stats-card">
-                <div class="home-card-header">
-                    <h4 class="home-card-title">统计概览</h4>
-                    <div class="home-card-actions">
-                        <button class="home-card-refresh-btn" @onclick="RefreshStatisticalData" title="刷新">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="23 4 23 10 17 10"></polyline>
-                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+                <h4 class="home-card-title">统计概览</h4>
                 <div class="home-stats-grid">
                     <div class="home-stat-item">
-                        <div class="home-stat-icon home-stat-primary">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
-                            </svg>
-                        </div>
-                        <div class="home-stat-info">
-                            <div class="home-stat-value home-stat-primary">@_userApiRequestsNumber</div>
-                            <div class="home-stat-label">总请求数</div>
-                        </div>
+                        <div class="home-stat-value home-stat-primary">@_userApiRequestsNumber</div>
+                        <div class="home-stat-label">总请求数</div>
                     </div>
                     <div class="home-stat-item">
-                        <div class="home-stat-icon home-stat-success">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-                                <circle cx="8.5" cy="7" r="4"></circle>
-                                <polyline points="17 11 19 13 23 9"></polyline>
-                            </svg>
-                        </div>
-                        <div class="home-stat-info">
-                            <div class="home-stat-value home-stat-success">@_userApiRequestsSuccessfulSMSTotal</div>
-                            <div class="home-stat-label">获取总数</div>
-                        </div>
+                        <div class="home-stat-value home-stat-success">@_userApiRequestsSuccessfulSMSTotal</div>
+                        <div class="home-stat-label">获取总数</div>
                     </div>
                     <div class="home-stat-item">
-                        <div class="home-stat-icon home-stat-danger">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="15" y1="9" x2="9" y2="15"></line>
-                                <line x1="9" y1="9" x2="15" y2="15"></line>
-                            </svg>
-                        </div>
-                        <div class="home-stat-info">
-                            <div class="home-stat-value home-stat-danger">@_disableSMSQuantity</div>
-                            <div class="home-stat-label">禁用项目</div>
-                        </div>
+                        <div class="home-stat-value home-stat-danger">@_disableSMSQuantity</div>
+                        <div class="home-stat-label">禁用项目</div>
                     </div>
                     <div class="home-stat-item">
-                        <div class="home-stat-icon home-stat-warning">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                                <line x1="3" y1="9" x2="21" y2="9"></line>
-                                <line x1="9" y1="21" x2="9" y2="9"></line>
-                            </svg>
-                        </div>
-                        <div class="home-stat-info">
-                            <div class="home-stat-value home-stat-warning">@_smsTotal</div>
-                            <div class="home-stat-label">数据总量</div>
-                        </div>
+                        <div class="home-stat-value home-stat-warning">@_smsTotal</div>
+                        <div class="home-stat-label">数据总量</div>
                     </div>
                 </div>
                 <div class="home-progress-container">
                     <div class="home-progress-info">
                         <span class="home-progress-label">系统已运行</span>
-                        <span class="home-progress-percent">
-                            🕒 服务在
-                            @_serverStartTime?.ToString("yyyy-MM-dd HH:mm:ss")
-                            启动
-                        </span>
-                    </div>
+                        <span class="home-progress-percent">🕒 服务在 @_serverStartTime?.ToString("yyyy-MM-dd HH:mm:ss") 启动</span>
 
+                    </div>
+                    
                     <div class="home-uptime-display">
                         <div class="home-uptime-item">
                             <span class="home-uptime-value">@_uptime.Days</span>
@@ -204,273 +100,30 @@
 
             <!-- 系统配置卡片 -->
             <div class="home-card home-config-card">
-                <div class="home-card-header">
-                    <h4 class="home-card-title">接码设置</h4>
-                    <div class="home-card-actions">
-                        <button class="home-card-refresh-btn" @onclick="OnRefreshUserAccessMSMSettingsChanged"
-                                title="刷新">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="23 4 23 10 17 10"></polyline>
-                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
+                <h4 class="home-card-title">接码设置</h4>
                 <div class="home-config-content">
-
                     <div class="home-config-item">
                         <span class="home-config-label">接码访问</span>
-                        <Switch @bind-Value="_isEnableUserAccessSMS"/>
+                        <div class="home-toggle-switch">
+                           
+                        </div>
                     </div>
-
+                    
                     <div class="home-config-item">
                         <span class="home-config-label">允许单次多个接码</span>
-                        <Switch @bind-Value="_isEnableUserMultipleVisitsAtOnceSMS"/>
+                        <div class="home-toggle-switch">
+                            
+                        </div>
                     </div>
 
                     <div class="home-config-item">
                         <span class="home-config-label">接码密钥</span>
-                        <div class="home-config-input-group">
-                            <input type="password" class="home-input-number" @bind="_userAccessKey"/>
-                            <button class="home-btn home-btn-default" @onclick="OnGenerateRandomUserAccessKeyChanged">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="16 3 21 3 21 8"></polyline>
-                                    <line x1="4" y1="20" x2="21" y2="3"></line>
-                                    <polyline points="21 16 21 21 16 21"></polyline>
-                                    <line x1="15" y1="15" x2="21" y2="21"></line>
-                                    <line x1="4" y1="4" x2="9" y2="9"></line>
-                                </svg>
-                            </button>
-                            <button class="home-btn home-btn-default" @onclick="OnCopyUserAccessKeyChanged">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="home-config-item">
-                        <span class="home-config-label">加密方式</span>
-                        <select class="home-select">
-                            <option value="">AES</option>
-                        </select>
-                    </div>
-
-                    <div class="home-config-item">
-                        <span class="home-config-label">加密密钥</span>
-                        <div class="home-config-input-group">
-                            <input type="password" class="home-input-number" @bind="_userAccessEncryptionKey"/>
-                            <button class="home-btn home-btn-default"
-                                    @onclick="OnGenerateRandomUserAccessEncryptionKeyChanged">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="16 3 21 3 21 8"></polyline>
-                                    <line x1="4" y1="20" x2="21" y2="3"></line>
-                                    <polyline points="21 16 21 21 16 21"></polyline>
-                                    <line x1="15" y1="15" x2="21" y2="21"></line>
-                                    <line x1="4" y1="4" x2="9" y2="9"></line>
-                                </svg>
-                            </button>
-                            <button class="home-btn home-btn-default" @onclick="OnCopyUserAccessEncryptionKeyChanged">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
-                                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
-                                </svg>
-                            </button>
-                        </div>
+                        <input type="password" class="home-input-number" style="width: 200px"/>
                     </div>
 
                     <div class="home-config-actions">
-                        <button class="home-btn home-btn-primary"
-                                @onclick="OnUploadUserAccessMSMSettingsChanged">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-                                <polyline points="17 21 17 13 7 13 7 21"></polyline>
-                                <polyline points="7 3 7 8 15 8"></polyline>
-                            </svg>
-                            保存
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 分组设置卡片 -->
-            <div class="home-card home-group-card">
-                <div class="home-card-header">
-                    <h4 class="home-card-title">分组设置</h4>
-                    <div class="home-card-actions">
-                        <button class="home-card-refresh-btn" title="刷新">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="23 4 23 10 17 10"></polyline>
-                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-                <div class="home-group-content">
-                    <div class="home-group-add">
-                        <input type="text" class="home-input-number" placeholder="输入分组名称" />
-                        <button class="home-btn home-btn-primary">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="12" y1="5" x2="12" y2="19"></line>
-                                <line x1="5" y1="12" x2="19" y2="12"></line>
-                            </svg>
-                            添加分组
-                        </button>
-                    </div>
-                    <div class="home-group-list">
-                        <div class="home-group-item">
-                            <span class="home-group-name">默认分组</span>
-                            <div class="home-group-actions">
-                                <button class="home-btn home-btn-default home-btn-small">
-                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M12 20h9"></path>
-                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                                    </svg>
-                                </button>
-                                <button class="home-btn home-btn-danger home-btn-small">
-                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="home-group-item">
-                            <span class="home-group-name">重要项目</span>
-                            <div class="home-group-actions">
-                                <button class="home-btn home-btn-default home-btn-small">
-                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M12 20h9"></path>
-                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                                    </svg>
-                                </button>
-                                <button class="home-btn home-btn-danger home-btn-small">
-                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                        <div class="home-group-item">
-                            <span class="home-group-name">测试分组</span>
-                            <div class="home-group-actions">
-                                <button class="home-btn home-btn-default home-btn-small">
-                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <path d="M12 20h9"></path>
-                                        <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
-                                    </svg>
-                                </button>
-                                <button class="home-btn home-btn-danger home-btn-small">
-                                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor"
-                                         stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                        <polyline points="3 6 5 6 21 6"></polyline>
-                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                    </svg>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- 筛选和批量操作面板 -->
-            <div class="home-card home-filter-batch-card">
-                <div class="home-card-header">
-                    <h4 class="home-card-title">筛选与批量操作</h4>
-                </div>
-                <div class="home-filter-batch-content">
-                    <div class="home-filter-section">
-                        <h5 class="home-filter-title">筛选条件</h5>
-                        <div class="home-filter-controls">
-                            <div class="home-filter-item">
-                                <label class="home-filter-label">分组</label>
-                                <select class="home-select">
-                                    <option value="">全部分组</option>
-                                    <option value="default">默认分组</option>
-                                    <option value="important">重要项目</option>
-                                    <option value="test">测试分组</option>
-                                </select>
-                            </div>
-                            <div class="home-filter-item">
-                                <label class="home-filter-label">状态</label>
-                                <select class="home-select">
-                                    <option value="">全部状态</option>
-                                    <option value="enabled">启用</option>
-                                    <option value="disabled">禁用</option>
-                                </select>
-                            </div>
-                            <div class="home-filter-item">
-                                <label class="home-filter-label">关键词</label>
-                                <input type="text" class="home-input-number" placeholder="输入关键词" />
-                            </div>
-                        </div>
-                        <div class="home-filter-actions">
-                            <button class="home-btn home-btn-primary">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-                                </svg>
-                                应用筛选
-                            </button>
-                            <button class="home-btn home-btn-default">
-                                重置
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="home-batch-section">
-                        <h5 class="home-batch-title">批量操作</h5>
-                        <div class="home-batch-actions">
-                            <button class="home-btn home-btn-default">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="8" y1="12" x2="16" y2="12"></line>
-                                </svg>
-                                批量禁用
-                            </button>
-                            <button class="home-btn home-btn-default">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="12" y1="8" x2="12" y2="16"></line>
-                                    <line x1="8" y1="12" x2="16" y2="12"></line>
-                                </svg>
-                                批量启用
-                            </button>
-                            <button class="home-btn home-btn-default">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                    <polyline points="7 10 12 15 17 10"></polyline>
-                                    <line x1="12" y1="15" x2="12" y2="3"></line>
-                                </svg>
-                                批量导出
-                            </button>
-                            <button class="home-btn home-btn-danger">
-                                <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                </svg>
-                                批量删除
-                            </button>
-                        </div>
+                        <button class="home-btn home-btn-default" style="background-color: #0c63e4; color: white">刷新</button>
+                        <button class="home-btn home-btn-primary">保存</button>
                     </div>
                 </div>
             </div>
@@ -481,95 +134,18 @@
             <div class="home-card home-table-card">
                 <!-- 顶部多选操作栏 -->
                 <div class="home-table-actions">
-                    <div class="home-table-actions-group">
-                        <button class="home-btn home-btn-default"
-                                @onclick="OnDisableTableSelectionItemChanged">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="8" y1="12" x2="16" y2="12"></line>
-                            </svg>
-                            禁用
-                        </button>
-                        <button class="home-btn home-btn-default"
-                                @onclick="OnEnableTableSelectionItemChanged">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <circle cx="12" cy="12" r="10"></circle>
-                                <line x1="12" y1="8" x2="12" y2="16"></line>
-                                <line x1="8" y1="12" x2="16" y2="12"></line>
-                            </svg>
-                            启用
-                        </button>
-                        <button class="home-btn home-btn-default"
-                                @onclick="OnExportTableSelectionItemChanged">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                            </svg>
-                            导出
-                        </button>
-                        <button class="home-btn home-btn-danger"
-                                @onclick="OnDeleteTableSelectionItemChanged">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path
-                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                            </svg>
-                            删除
-                        </button>
-                    </div>
-
-                    <div class="home-table-actions-group">
-                        <button class="home-btn home-btn-secondary"
-                                @onclick="OnRefreshTableChanged">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="23 4 23 10 17 10"></polyline>
-                                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
-                            </svg>
-                            刷新
-                        </button>
-
-                        <button class="home-btn home-btn-danger"
-                                @onclick="OnDeleteAllDataChanged">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <polyline points="3 6 5 6 21 6"></polyline>
-                                <path
-                                    d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                                <line x1="10" y1="11" x2="10" y2="17"></line>
-                                <line x1="14" y1="11" x2="14" y2="17"></line>
-                            </svg>
-                            删除所有
-                        </button>
-                        <button class="home-btn home-btn-secondary"
-                                @onclick="OnExportAllDataChanged">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                            </svg>
-                            导出所有
-                        </button>
-                        <button class="home-btn home-btn-secondary"
-                                @onclick="OnImportDataChanged">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-                                 stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="17 8 12 3 7 8"></polyline>
-                                <line x1="12" y1="3" x2="12" y2="15"></line>
-                            </svg>
-                            导入数据
-                        </button>
-                    </div>
+                    <button class="home-btn home-btn-default">禁用</button>
+                    <button class="home-btn home-btn-default">启用</button>
+                    <button class="home-btn home-btn-default">导出</button>
+                    <button class="home-btn home-btn-default" style="background-color: #bb2d3b; color: white">删除</button>
+                    <button class="home-btn home-btn-default" style="background-color: #0c63e4; color: white">刷新</button>
+    
+                    <!-- 添加 style="margin-left: auto" 到第一个靠右的按钮 -->
+                    <button class="home-btn home-btn-default" style="background-color: #bb2d3b; color: white; margin-left: auto;" @onclick="OnDeleteAllDataChanged">删除所有</button>
+                    <button class="home-btn home-btn-default" style="background-color: #0c63e4; color: white">导出所有</button>
+                    <button class="home-btn home-btn-default" style="background-color: #0c63e4; color: white" @onclick="OnImportDataChanged">导入数据</button>
                 </div>
-
-
+                
                 <!-- 表格区域 -->
                 <div class="home-table-container">
                     <table class="home-table">
@@ -578,65 +154,40 @@
                             <th class="home-table-cell">
                                 <input type="checkbox"
                                        class="home-checkbox"
-                                       checked="@_isSelectAll"
-                                       @onchange="HandleSelectAllChanged"/>
+                                       checked="@_selectAll"
+                                       @onchange="HandleSelectAllChanged" />
                             </th>
                             <th class="home-table-cell">内容</th>
                             <th class="home-table-cell">状态</th>
-                            <th class="home-table-cell">请求次数</th>
+                            <th class="home-table-cell">获取次数</th>
                             <th class="home-table-cell">最后请求时间</th>
                             <th class="home-table-cell">创建时间</th>
                         </tr>
                         </thead>
                         <tbody class="home-table-body">
-                        @foreach (var item in _items)
+                        @foreach (var item in items)
                         {
                             <tr class="home-table-row">
                                 <td class="home-table-cell">
                                     <input type="checkbox"
                                            class="home-checkbox"
-                                           @bind="item.IsSelected"/>
+                                           @bind="item.IsSelected" />
                                 </td>
                                 <td class="home-table-cell">@item.Content</td>
                                 <td class="home-table-cell">
-                                    <span
-                                        class="home-status @(item.IsEnable ? "home-status-success" : "home-status-danger")">
+                                    <span class="home-status @(item.IsEnable ? "home-status-enabled" : "home-status-disabled")">
                                         @(item.IsEnable ? "启用" : "禁用")
                                     </span>
                                 </td>
-                                <td class="home-table-cell">
-                                    <span
-                                        class="home-request-count @(item.AccessCount == 0 ? "home-request-count-zero" : item.AccessCount < 10 ? "home-request-count-low" : item.AccessCount < 100 ? "home-request-count-medium" : "home-request-count-high")">
-                                        <i class="fas @(item.AccessCount == 0 ? "fa-ban" : "fa-hashtag")"></i> @item.AccessCount
-                                    </span>
-                                </td>
-                                <td class="home-table-cell">
-                                    @if (item.LastAccessTime == DateTime.MinValue)
-                                    {
-                                        <span class="home-last-access never">
-                                            <i class="fas fa-times-circle"></i> 从未请求
-                                        </span>
-                                    }
-                                    else
-                                    {
-                                        <span class="home-last-access accessed">
-                                            <i class="fas fa-check-circle"></i> @item.LastAccessTime.ToString("yyyy-MM-dd HH:mm:ss:fff")
-                                        </span>
-                                    }
-                                </td>
-
-                                <td class="home-table-cell">
-                                    <span class="home-create-time">
-                                        <i class="fas fa-calendar-plus"></i> @item.CreateTime.ToString("yyyy-MM-dd HH:mm:ss:fff")
-                                    </span>
-                                </td>
-
+                                <td class="home-table-cell">@item.AccessCount</td>
+                                <td class="home-table-cell">@item.LastAccessTime.ToString("yyyy-MM-dd HH:mm:ss:fff")</td>
+                                <td class="home-table-cell">@item.CreateTime.ToString("yyyy-MM-dd HH:mm:ss:fff")</td>
                             </tr>
                         }
                         </tbody>
                     </table>
                 </div>
-
+                
                 <!-- 底部翻页元素 -->
                 <div class="home-pagination">
                     <div class="home-pagination-info">显示 @_miniNumber 到 @_maxNumber 项，共 @_smsTotal 项</div>
@@ -648,7 +199,7 @@
                             &laquo;
                         </button>
 
-                        @* 生成页码按钮 *@
+                        @* 生成页码按钮 *@ 
                         @foreach (var item in GetPaginationItems())
                         {
                             if (item.IsEllipsis)
@@ -676,8 +227,7 @@
                     </div>
                     <div class="home-pagination-size">
                         <span>每页</span>
-                        <select class="home-select home-select-small" @bind="TablePageSize"
-                                @bind:after="OnSelectionTablePageSizeChanged">
+                        <select class="home-select home-select-small" @bind="TablePageSize" @bind:after="OnSelectionTablePageSizeChanged">
                             @foreach (var value in new[] { 20, 50, 100, 250, 500, 1000, 2500, 5000 })
                             {
                                 <option value="@value">@value</option>

@@ -54,15 +54,12 @@ public partial class AdminRequest
     /// <summary>
     /// 获取短信分页数据
     /// </summary>
-    [HttpGet("GetSMSPageData")]
     [HttpPost("GetSMSPageData")]
     // ReSharper disable once InconsistentNaming
     public IActionResult GetSMSPageData([FromQuery] int pageIndex, [FromQuery] int pageSize, [FromBody] AdminRequestDataBase request)
     {
         if (!VerifyAdminAccount(request)) 
             return Unauthorized(new ReturnDataBase { Success = false, Message = "管理员认证失败！" });
-        
-        Console.WriteLine(pageIndex + " " + pageSize);
         
         var smsList = SMSDatabaseManager.Instance.GetSMSPageData(pageIndex, pageSize);
         var smsTotal = SMSDatabaseManager.Instance.GetSMSTotal();
@@ -132,8 +129,6 @@ public partial class AdminRequest
         var epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
         var time = (long)(Program.StartTime.ToUniversalTime() - epoch).TotalMilliseconds;
         
-        Console.WriteLine(time);
-        
         return Ok(new ReturnLongData
         {
             Success = true,
@@ -158,7 +153,7 @@ public partial class AdminRequest
             UserApiRequestsNumber = ConfigDatabase.Instance.UserApiAccessCount,
             UserApiRequestsSuccessfulSMSTotal = SMSDatabaseManager.Instance.GetAccessSMSTotal(),
             SMSTotal = SMSDatabaseManager.Instance.GetSMSTotal(),
-            DisableSMSQuantity = SMSDatabaseManager.Instance.GetEnableSMSCount()
+            DisableSMSQuantity = SMSDatabaseManager.Instance.GetDisableSMSCount()
         });
     }
 
@@ -225,7 +220,7 @@ public partial class AdminRequest
     public IActionResult GetAllSMSContent([FromBody] AdminRequestDataBase request)
     {
         if (!VerifyAdminAccount(request)) 
-            return Unauthorized(new ReturnDataBase { Success = false, Message = "管理员认证失败！" });
+            return Unauthorized(new ReturnStringListData { Success = false, Message = "管理员认证失败！" });
         
         var data = SMSDatabaseManager.Instance.GetAllSMSContent();
         
@@ -243,9 +238,9 @@ public partial class AdminRequest
     /// 禁用短信
     /// </summary>
     /// <returns></returns>
-    [HttpPost("DisableSMS")]
+    [HttpPost("SetSMSIsEnable")]
     // ReSharper disable once InconsistentNaming
-    public IActionResult DisableSMS([FromBody] AdminRequestStringListData request)
+    public IActionResult SetSMSIsEnable([FromQuery] bool isEnable, [FromBody] AdminRequestStringListData request)
     {
         if (!VerifyAdminAccount(request)) 
             return Unauthorized(new ReturnDataBase { Success = false, Message = "管理员认证失败！" });
@@ -253,7 +248,7 @@ public partial class AdminRequest
         if (request.Data == null) 
             return BadRequest(new ReturnDataBase { Success = false, Message = "数据不能为空！" });
         
-        var isSuccess = SMSDatabaseManager.Instance.DisableSMS(request.Data);
+        var isSuccess = SMSDatabaseManager.Instance.SetSMSIsEnable(request.Data, isEnable);
 
         if (!isSuccess)
         {

@@ -1,3 +1,4 @@
+using AdminPanel.Components;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 
@@ -16,6 +17,11 @@ public partial class Home : ComponentBase, IDisposable
     [Inject] public HttpClient Http { get; set; } = null!;
     
     /// <summary>
+    /// 导航管理器
+    /// </summary>
+    [Inject] public NavigationManager NavigationManager { get; set; } = null!;
+    
+    /// <summary>
     /// 登录用户名
     /// </summary>
     private string _username = "";
@@ -24,6 +30,8 @@ public partial class Home : ComponentBase, IDisposable
     /// 登录密码
     /// </summary>
     private string _password = "";
+
+    private Dialog _LogoutDialog = null!;
 
     /// <summary>
     /// 初始化方法
@@ -44,6 +52,9 @@ public partial class Home : ComponentBase, IDisposable
         // 刷新表格
         await RefreshTable(1);
 
+        // 刷新用户访问权限设置
+        await RefreshUserAccessMSMSettings();
+
         _isLoading = false;
         StateHasChanged();
 
@@ -58,6 +69,30 @@ public partial class Home : ComponentBase, IDisposable
         {
             _ = RefreshStatisticalData();
         }, null, TimeSpan.FromSeconds(10), TimeSpan.FromSeconds(10));
+    }
+    
+    /// <summary>
+    /// 登出方法
+    /// </summary>
+    private async Task OnLogoutClicked()
+    {
+        await _LogoutDialog.Show();
+    }
+    
+    /// <summary>
+    /// 退出登录
+    /// </summary>
+    private async Task Logout()
+    {
+        // 清除认证信息
+        var cookieService = new CookieService(JsRuntime);
+        await cookieService.DeleteCookie("username");
+        await cookieService.DeleteCookie("password");
+        
+        await _LogoutDialog.Hide();
+        
+        // 重定向到登录页面
+        NavigationManager.NavigateTo("/login");
     }
     
     /// <summary>

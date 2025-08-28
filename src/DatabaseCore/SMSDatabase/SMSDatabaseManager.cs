@@ -47,6 +47,11 @@ public partial class SMSDatabaseManager
         
         // 创建数据表
         _db.GetCollection<SMSDatabaseData>(SMSTableName);
+        
+        // 创建数据表并设置索引
+        var collection = _db.GetCollection<SMSDatabaseData>(SMSTableName);
+        collection.EnsureIndex(x => x.Content, true); // 设置唯一索引
+        
     }
     
     /// <summary>

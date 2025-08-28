@@ -1,0 +1,87 @@
+<!-- Switch.razor -->
+<div class="switch-container" @onclick="Toggle">
+    <input type="checkbox"
+           @bind="CurrentValue"
+           class="switch-input"/>
+
+    <!-- 滑动条 -->
+    <div class="switch-slider"
+         style="background-color: @(CurrentValue ? OnColor : OffColor)">
+        <!-- 滑块（knob） -->
+        <span class="switch-knob"></span>
+    </div>
+</div>
+
+<style>
+    .switch-container {
+        display: inline-block;
+        position: relative;
+        width: 50px;
+        height: 30px;
+        cursor: pointer;
+    }
+
+    /* 隐藏原生 checkbox */
+    .switch-input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    /* 滑动条背景 */
+    .switch-slider {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        border-radius: 15px;
+        transition: background-color 0.3s ease;
+    }
+
+    /* 滑块（knob） */
+    .switch-knob {
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 26px;
+        height: 26px;
+        background-color: white;
+        border-radius: 50%;
+        background-clip: content-box;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 2;
+    }
+
+    /* 当 checkbox 选中时，滑块向右移动 */
+    .switch-input:checked + .switch-slider .switch-knob {
+        transform: translateX(20px);
+    }
+</style>
+
+@code {
+    [Parameter] public bool Value { get; set; }
+    [Parameter] public EventCallback<bool> ValueChanged { get; set; }
+    [Parameter] public string OnColor { get; set; } = "#0c63e4";
+    [Parameter] public string OffColor { get; set; } = "#ccc";
+
+    private bool CurrentValue
+    {
+        get => Value;
+        set
+        {
+            if (Value != value)
+            {
+                Value = value;
+                _ = ValueChanged.InvokeAsync(Value);
+            }
+        }
+    }
+
+    private void Toggle()
+    {
+        CurrentValue = !CurrentValue;
+    }
+
+}

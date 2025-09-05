@@ -6,5 +6,5 @@ public class Config
     /// WebAPI 服务器地址
     /// </summary>
     // ReSharper disable once InconsistentNaming
-    public static readonly string WebAPIServer = "http://localhost:5232";
+    public static string WebAPIServer { get; private set; } = "https://zhfp.zhan-hun.com";
 }

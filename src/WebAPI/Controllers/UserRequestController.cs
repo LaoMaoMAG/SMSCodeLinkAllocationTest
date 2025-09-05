@@ -25,7 +25,6 @@ public class UserRequestController : ControllerBase
     /// 获取单个短信
     /// </summary>
     /// <returns></returns>
-    [HttpGet("RequestSingleSMS")]
     [HttpPost("RequestSingleSMS")]
     // ReSharper disable once InconsistentNaming
     public IActionResult RequestSingleSMS([FromBody] UserRequestDataBase request)
@@ -77,10 +76,9 @@ public class UserRequestController : ControllerBase
     /// <param name="count">获取数量</param>
     /// <param name="request"></param>
     /// <returns></returns>
-    [HttpGet("RequestMultipleSMS")]
     [HttpPost("RequestMultipleSMS")]
     // ReSharper disable once InconsistentNaming
-    public IActionResult RequestMultipleSMS([FromQuery] string count, [FromBody] UserRequestDataBase request)
+    public IActionResult RequestMultipleSMS([FromQuery] int count, [FromBody] UserRequestDataBase request)
     {
         ConfigDatabase.Instance.UserApiAccessCount++;
     
@@ -114,7 +112,7 @@ public class UserRequestController : ControllerBase
             });
         }
         
-        var data = SMSDatabaseManager.Instance.RequestSMS();
+        var data = SMSDatabaseManager.Instance.RequestSMS(count);
     
         if(data == null) return Ok(new ReturnStringData
         {
@@ -125,7 +123,7 @@ public class UserRequestController : ControllerBase
         // 将data对象转换为JSON字符串
         var jsonData = JsonSerializer.Serialize(data);
     
-        var encryptData = NetworkEncryption.Instance.Encrypt(data,out var aesIv);
+        var encryptData = NetworkEncryption.Instance.Encrypt(jsonData, out var aesIv);
         
         return Ok(new ReturnStringData
         {
@@ -133,6 +131,84 @@ public class UserRequestController : ControllerBase
             Message = "获取成功！",
             Data = encryptData,
             AesIv = aesIv
+        });
+    }
+
+    /// <summary>
+    /// 禁用短信
+    /// </summary>
+    [HttpPost("DisableSMS")]
+    // ReSharper disable once InconsistentNaming
+    public IActionResult DisableSMS([FromBody] UserRequestStringData request)
+    {
+        ConfigDatabase.Instance.UserApiAccessCount++;
+    
+        // 解密请求数据
+        if (!UserAccessVerification(request))
+        {
+            return Unauthorized(new ReturnDataBase
+            {
+                Success = false,
+                Message = "访问验证未通过！"
+            });
+        }
+        
+        if (string.IsNullOrEmpty(request.Data)) return BadRequest(new ReturnDataBase
+        {
+            Success = false,
+            Message = "数据不能为空！"
+        });
+
+        if (!SMSDatabaseManager.Instance.SetSMSIsEnable(request.Data, false)) 
+            return Ok(new ReturnDataBase
+            {
+                Success = false,
+                Message = "禁用失败！"
+            });
+        
+        return Ok(new ReturnDataBase
+        {
+            Success = true,
+            Message = "禁用成功！"
+        });
+    }
+
+    /// <summary>
+    /// 删除短信
+    /// </summary>
+    [HttpPost("DeleteSMS")]
+    // ReSharper disable once InconsistentNaming
+    public IActionResult DeleteSMS([FromBody] UserRequestStringData request)
+    {
+        ConfigDatabase.Instance.UserApiAccessCount++;
+    
+        // 解密请求数据
+        if (!UserAccessVerification(request))
+        {
+            return Unauthorized(new ReturnDataBase
+            {
+                Success = false,
+                Message = "访问验证未通过！"
+            });
+        }
+        
+        if (string.IsNullOrEmpty(request.Data)) return BadRequest(new ReturnDataBase
+        {
+            Success = false,
+            Message = "数据不能为空！"
+        });
+
+        if (!SMSDatabaseManager.Instance.DeleteSMS(request.Data)) 
+            return Ok(new ReturnDataBase
+            {
+                Success = false,
+                Message = "删除失败！"
+            });
+        
+        return Ok(new ReturnDataBase
+        {
+            Success = true,
+            Message = "删除成功！"
         });
     }
 }

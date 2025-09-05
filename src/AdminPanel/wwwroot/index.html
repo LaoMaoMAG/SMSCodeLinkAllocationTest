@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="css/app.css" />
     <link rel="stylesheet" href="css/home.css" />
     <link rel="stylesheet" href="css/dialog.css" />
+    <link rel="stylesheet" href="css/global.css" />
     <link rel="icon" type="image/png" href="favicon.png" />
     <link href="AdminPanel.styles.css" rel="stylesheet" />
     <script src="javascript/cookie_service.js"></script>
@@ -17,6 +18,9 @@
     <script src="javascript/upload_file.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
+
+        
+        
         /* 现代化加载界面样式 */
         .loading-container {
             position: fixed;
@@ -29,22 +33,8 @@
             justify-content: center;
             align-items: center;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            background-size: 400% 400%;
-            animation: loading-gradientShift 15s ease infinite;
             z-index: 9999;
             transition: opacity 0.5s ease-out;
-        }
-
-        @keyframes loading-gradientShift {
-            0% {
-                background-position: 0 50%;
-            }
-            50% {
-                background-position: 100% 50%;
-            }
-            100% {
-                background-position: 0 50%;
-            }
         }
 
         #loading-particleCanvas {
@@ -190,26 +180,22 @@
             color: white;
             text-decoration: underline;
         }
-
-        /* 隐藏默认的加载进度元素 */
-        .loading-progress, .loading-progress-text {
-            display: none;
-        }
     </style>
 </head>
 
 <body>
 <div id="app">
-    <canvas id="loading-particleCanvas"></canvas>
-    <div class="loading-container">
-        <div class="loading-spinner">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
+    <div id="page">
+        <div class="loading-container">
+            <div class="loading-spinner">
+                <div></div>
+                <div></div>
+                <div></div>
+                <div></div>
+            </div>
+            <div class="loading-text">资源加载</div>
+            <div class="loading-subtext">正在加载网站资源</div>
         </div>
-        <div class="loading-text">资源加载</div>
-        <div class="loading-subtext">正在加载网站资源</div>
     </div>
 </div>
 
@@ -349,6 +335,9 @@
     // 初始化粒子背景
     window.initializeParticleBackground();
 </script>
+
+<script src="javascript/background_particles.js"></script>
+
 </body>
 
 </html>

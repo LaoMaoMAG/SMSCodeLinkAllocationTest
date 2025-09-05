@@ -1,27 +1,11 @@
 .home-container {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    background-size: 400% 400%;
     height: 100vh;
     display: flex;
     flex-direction: column;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     overflow: hidden;
     padding: 15px;
     box-sizing: border-box;
     position: relative;
-    animation: home-gradientShift 15s ease infinite;
-}
-
-@keyframes home-gradientShift {
-    0% {
-        background-position: 0 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0 50%;
-    }
 }
 
 /* 品牌标识样式 */

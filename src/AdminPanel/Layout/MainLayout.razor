@@ -1,24 +1,25 @@
 @inherits LayoutComponentBase
+@inject IJSRuntime JsRuntime
 
 <div class="page">
+    
     <main>
+        <canvas id="particleCanvas"></canvas>
         @Body
     </main>
 </div>
 
 <style>
-    .page {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    main {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-    }
+   
 </style>
+
+@code
+{
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JsRuntime.InvokeVoidAsync("initializeParticleBackground");
+        }
+    }
+}

@@ -1,16 +1,18 @@
 namespace DatabaseCore;
 
 // 数据库用户操作
+// ReSharper disable once InconsistentNaming
 public partial class SMSDatabaseManager
 {
     /// <summary>
     /// 请求短信
     /// </summary>
-    /// <param name="count"></param>
-    /// <returns></returns>
+    /// <param name="count">请求的短信数量</param>
+    /// <param name="isTimeDescendingOrder">是否按时间降序排列，默认为false（升序）</param>
+    /// <returns>短信数据列表</returns>
     // ReSharper disable once InconsistentNaming
     // ReSharper disable once MemberCanBePrivate.Global
-    public List<SMSDatabaseData>? RequestSMS(int count)
+    public List<SMSDatabaseData>? RequestSMS(int count, bool isTimeDescendingOrder = false)
     {
         try
         {
@@ -18,10 +20,16 @@ public partial class SMSDatabaseManager
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
 
-                // 按最后访问时间升序排列，且仅包含启用的记录
-                var smsList = col.Query()
-                    .Where(x => x.IsEnable == true) // 添加筛选条件
-                    .OrderBy(x => x.LastAccessTime)
+                // 根据isTimeDescendingOrder参数决定排序方向
+                var query = col.Query()
+                    .Where(x => x.IsEnable == true); // 添加筛选条件
+
+                // 按最后访问时间排序，根据isTimeDescendingOrder参数决定升序或降序
+                query = isTimeDescendingOrder
+                    ? query.OrderByDescending(x => x.LastAccessTime)
+                    : query.OrderBy(x => x.LastAccessTime);
+
+                var smsList = query
                     .Limit(count)
                     .ToList();
 

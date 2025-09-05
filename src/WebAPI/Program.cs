@@ -17,7 +17,7 @@ public class Program
         {
             options.AddPolicy("AllowBlazorWasm", policy =>
             {
-                policy.WithOrigins("http://localhost:5000") // Blazor WASM 地址
+                policy.WithOrigins("https://zhfpht.zhan-hun.com") // Blazor WASM 地址
                     .AllowAnyMethod()
                     .AllowAnyHeader()
                     .AllowCredentials(); // 如果需要发送凭据（如 cookies）

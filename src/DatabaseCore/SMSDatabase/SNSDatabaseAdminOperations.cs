@@ -22,7 +22,7 @@ public partial class SMSDatabaseManager
                     {
                         col.Insert(new SMSDatabaseData(content));
                     }
-                    catch (Exception e)
+                    catch (Exception)
                     {
                         // ignored
                     }
@@ -135,7 +135,6 @@ public partial class SMSDatabaseManager
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
                 return col.Count();
             });
-            return 0;
         }
         catch (InvalidOperationException)
         {
@@ -195,7 +194,7 @@ public partial class SMSDatabaseManager
     {
         try
         {
-            Execute(db =>
+            return Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
                 // 查找需要禁用的短信并更新其 IsEnable 状态
@@ -203,10 +202,12 @@ public partial class SMSDatabaseManager
                 foreach (var sms in smsToUpdate)
                 {
                     sms.IsEnable = isEnable;
-                    col.Update(sms);
+                    var updateResult = col.Update(sms); // 检查更新结果
+                    if (!updateResult) // 如果更新失败
+                        throw new InvalidOperationException("Failed to update SMS record");
                 }
+                return true; // 确保Execute方法返回成功标识
             });
-            return true;
         }
         catch (InvalidOperationException)
         {

@@ -55,9 +55,9 @@ public partial class SMSDatabaseManager
     /// 请求短信
     /// </summary>
     // ReSharper disable once InconsistentNaming
-    public string? RequestSMS()
+    public string? RequestSMS(bool isTimeDescendingOrder = false)
     {
-        var smsList = RequestSMS(1);
+        var smsList = RequestSMS(1, isTimeDescendingOrder);
         return smsList?.FirstOrDefault()?.Content;
     }
 }

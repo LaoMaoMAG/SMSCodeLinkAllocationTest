@@ -27,7 +27,7 @@ public class UserRequestController : ControllerBase
     /// <returns></returns>
     [HttpPost("RequestSingleSMS")]
     // ReSharper disable once InconsistentNaming
-    public IActionResult RequestSingleSMS([FromBody] UserRequestDataBase request)
+    public IActionResult RequestSingleSMS([FromBody] UserRequestDataBase request, [FromQuery] bool isTimeDescendingOrder = false)
     {
         ConfigDatabase.Instance.UserApiAccessCount++;
 
@@ -51,7 +51,7 @@ public class UserRequestController : ControllerBase
             });
         }
         
-        var data = SMSDatabaseManager.Instance.RequestSMS();
+        var data = SMSDatabaseManager.Instance.RequestSMS(isTimeDescendingOrder);
         
         if(data == null) return Ok(new ReturnStringData
         {
@@ -78,7 +78,7 @@ public class UserRequestController : ControllerBase
     /// <returns></returns>
     [HttpPost("RequestMultipleSMS")]
     // ReSharper disable once InconsistentNaming
-    public IActionResult RequestMultipleSMS([FromQuery] int count, [FromBody] UserRequestDataBase request)
+    public IActionResult RequestMultipleSMS([FromQuery] int count, [FromBody] UserRequestDataBase request, [FromQuery] bool isTimeDescendingOrder = false)
     {
         ConfigDatabase.Instance.UserApiAccessCount++;
     
@@ -112,7 +112,7 @@ public class UserRequestController : ControllerBase
             });
         }
         
-        var data = SMSDatabaseManager.Instance.RequestSMS(count);
+        var data = SMSDatabaseManager.Instance.RequestSMS(count, isTimeDescendingOrder);
     
         if(data == null) return Ok(new ReturnStringData
         {

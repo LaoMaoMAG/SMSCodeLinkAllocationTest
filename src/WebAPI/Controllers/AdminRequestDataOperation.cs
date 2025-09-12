@@ -22,7 +22,7 @@ public partial class AdminRequest
         if (requestString.Data == null) 
             return BadRequest(new ReturnDataBase { Success = false, Message = "Content 不能为空！" });
         
-        var isSuccess = SMSDatabaseManager.Instance.AddSMS(requestString.Data);
+        var isSuccess = SMSDatabase.Instance.AddSMS(requestString.Data);
         
         return Ok(isSuccess
             ? new ReturnDataBase { Success = true, Message = "添加数据成功！" }
@@ -44,7 +44,7 @@ public partial class AdminRequest
         if (requestStringList.Data == null) 
             return BadRequest(new ReturnDataBase { Success = false, Message = "Content 不能为空！" });
         
-        var isSuccess = SMSDatabaseManager.Instance.AddSMS(requestStringList.Data);
+        var isSuccess = SMSDatabase.Instance.AddSMS(requestStringList.Data);
         
         return Ok(isSuccess
             ? new ReturnDataBase { Success = true, Message = "添加数据成功！" }
@@ -61,8 +61,8 @@ public partial class AdminRequest
         if (!VerifyAdminAccount(request)) 
             return Unauthorized(new ReturnDataBase { Success = false, Message = "管理员认证失败！" });
         
-        var smsList = SMSDatabaseManager.Instance.GetSMSPageData(pageIndex, pageSize);
-        var smsTotal = SMSDatabaseManager.Instance.GetSMSTotal();
+        var smsList = SMSDatabase.Instance.GetSMSPageData(pageIndex, pageSize);
+        var smsTotal = SMSDatabase.Instance.GetSMSTotal();
         
         var totalPages = smsTotal / pageSize;
         if (totalPages == 0 && smsTotal != 0) totalPages = 1;
@@ -107,7 +107,7 @@ public partial class AdminRequest
         if (!VerifyAdminAccount(request)) 
             return Unauthorized(new ReturnDataBase { Success = false, Message = "管理员认证失败！" });
         
-        var isSuccess = SMSDatabaseManager.Instance.DeleteAllSMS();
+        var isSuccess = SMSDatabase.Instance.DeleteAllSMS();
         
         return Ok(isSuccess
             ? new ReturnDataBase { Success = true, Message = "删除数据成功！" }
@@ -151,9 +151,9 @@ public partial class AdminRequest
             Success = true,
             Message = "获取数据成功！",
             UserApiRequestsNumber = ConfigDatabase.Instance.UserApiAccessCount,
-            UserApiRequestsSuccessfulSMSTotal = SMSDatabaseManager.Instance.GetAccessSMSTotal(),
-            SMSTotal = SMSDatabaseManager.Instance.GetSMSTotal(),
-            DisableSMSQuantity = SMSDatabaseManager.Instance.GetDisableSMSCount()
+            UserApiRequestsSuccessfulSMSTotal = SMSDatabase.Instance.GetAccessSMSTotal(),
+            SMSTotal = SMSDatabase.Instance.GetSMSTotal(),
+            DisableSMSQuantity = SMSDatabase.Instance.GetDisableSMSCount()
         });
     }
 
@@ -222,7 +222,7 @@ public partial class AdminRequest
         if (!VerifyAdminAccount(request)) 
             return Unauthorized(new ReturnStringListData { Success = false, Message = "管理员认证失败！" });
         
-        var data = SMSDatabaseManager.Instance.GetAllSMSContent();
+        var data = SMSDatabase.Instance.GetAllSMSContent();
         
         return data == null
             ? Ok(new ReturnStringListData { Success = false, Message = "获取数据失败！" })
@@ -248,7 +248,7 @@ public partial class AdminRequest
         if (request.Data == null) 
             return BadRequest(new ReturnDataBase { Success = false, Message = "数据不能为空！" });
         
-        var isSuccess = SMSDatabaseManager.Instance.SetSMSIsEnable(request.Data, isEnable);
+        var isSuccess = SMSDatabase.Instance.SetSMSIsEnable(request.Data, isEnable);
 
         if (!isSuccess)
         {
@@ -280,7 +280,7 @@ public partial class AdminRequest
         if (request.Data == null) 
             return BadRequest(new ReturnDataBase { Success = false, Message = "Data 不能为空！" });
         
-        var isSuccess = SMSDatabaseManager.Instance.DeleteSMS(request.Data);
+        var isSuccess = SMSDatabase.Instance.DeleteSMS(request.Data);
         
         return Ok(isSuccess
             ? new ReturnDataBase { Success = true, Message = "删除数据成功！" }

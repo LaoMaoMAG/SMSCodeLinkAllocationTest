@@ -6,7 +6,7 @@ namespace DatabaseCore
     /// 数据库管理器
     /// </summary>
     // ReSharper disable once InconsistentNaming
-    public partial class SMSDatabaseManager
+    public partial class SMSDatabase
     {
         /// <summary>
         /// 静态锁，用于确保单线程操作
@@ -21,7 +21,7 @@ namespace DatabaseCore
         /// <summary>
         /// 单例实例
         /// </summary>
-        private static SMSDatabaseManager? _instance;
+        private static SMSDatabase? _instance;
         
         /// <summary>
         /// 数据库连接
@@ -31,7 +31,7 @@ namespace DatabaseCore
         /// <summary>
         /// 获取单例实例
         /// </summary>
-        public static SMSDatabaseManager Instance => _instance ??= new SMSDatabaseManager();
+        public static SMSDatabase Instance => _instance ??= new SMSDatabase();
 
         /// <summary>
         /// 短信数据库表名
@@ -42,7 +42,7 @@ namespace DatabaseCore
         /// <summary>
         /// 私有构造函数
         /// </summary>
-        private SMSDatabaseManager()
+        private SMSDatabase()
         {
             // 连接数据库
             var connectionString = new ConnectionString(DatabaseCoreConfig.LiteDbFilePath)

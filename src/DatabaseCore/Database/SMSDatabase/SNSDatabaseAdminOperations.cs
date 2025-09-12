@@ -2,7 +2,7 @@ namespace DatabaseCore;
 
 // 数据库管理操作
 // ReSharper disable once InconsistentNaming
-public partial class SMSDatabaseManager
+public partial class SMSDatabase
 {
     /// <summary>
     /// 添加短信

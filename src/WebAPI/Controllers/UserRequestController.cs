@@ -20,14 +20,19 @@ public class UserRequestController : ControllerBase
         if (string.IsNullOrEmpty(ConfigDatabase.Instance.UserAccessKey)) return true;
         return ConfigDatabase.Instance.UserAccessKey == data.AccessKey;
     }
-    
+
     /// <summary>
     /// 获取单个短信
     /// </summary>
     /// <returns></returns>
     [HttpPost("RequestSingleSMS")]
     // ReSharper disable once InconsistentNaming
-    public IActionResult RequestSingleSMS([FromBody] UserRequestDataBase request, [FromQuery] bool isTimeDescendingOrder = false)
+    public IActionResult RequestSingleSMS(
+        [FromBody] UserRequestDataBase request,
+        [FromQuery] bool isTimeDescendingOrder = false,
+        [FromQuery] int accessRestriction = 0,
+        [FromQuery] bool isMaxMode = false
+    )
     {
         ConfigDatabase.Instance.UserApiAccessCount++;
 
@@ -40,8 +45,8 @@ public class UserRequestController : ControllerBase
                 Message = "访问验证未通过！"
             });
         }
-        
-        if(!ConfigDatabase.Instance.IsEnableUserAccessSMS) 
+
+        if (!ConfigDatabase.Instance.IsEnableUserAccessSMS)
         {
             // 访问短信未启用，返回403 Forbidden状态码
             return StatusCode(403, new ReturnStringData
@@ -50,17 +55,18 @@ public class UserRequestController : ControllerBase
                 Message = "访问短信未启用！"
             });
         }
-        
-        var data = SMSDatabaseManager.Instance.RequestSMS(isTimeDescendingOrder);
-        
-        if(data == null) return Ok(new ReturnStringData
-        {
-            Success = false,
-            Message = "获取失败！"
-        });
 
-        var encryptData = NetworkEncryption.Instance.Encrypt(data,out var aesIv);
-        
+        var data = SMSDatabase.Instance.RequestSMS(isTimeDescendingOrder, accessRestriction, isMaxMode);
+
+        if (data == null)
+            return Ok(new ReturnStringData
+            {
+                Success = false,
+                Message = "获取失败！"
+            });
+
+        var encryptData = NetworkEncryption.Instance.Encrypt(data, out var aesIv);
+
         return Ok(new ReturnStringData
         {
             Success = true,
@@ -75,13 +81,18 @@ public class UserRequestController : ControllerBase
     /// </summary>
     /// <param name="count">获取数量</param>
     /// <param name="request"></param>
+    /// <param name="isTimeDescendingOrder"></param>
     /// <returns></returns>
     [HttpPost("RequestMultipleSMS")]
     // ReSharper disable once InconsistentNaming
-    public IActionResult RequestMultipleSMS([FromQuery] int count, [FromBody] UserRequestDataBase request, [FromQuery] bool isTimeDescendingOrder = false)
+    public IActionResult RequestMultipleSMS(
+        [FromQuery] int count,
+        [FromBody] UserRequestDataBase request,
+        [FromQuery] bool isTimeDescendingOrder = false
+    )
     {
         ConfigDatabase.Instance.UserApiAccessCount++;
-    
+
         // 解密请求数据
         if (!UserAccessVerification(request))
         {
@@ -91,8 +102,8 @@ public class UserRequestController : ControllerBase
                 Message = "访问验证未通过！"
             });
         }
-        
-        if(!ConfigDatabase.Instance.IsEnableUserAccessSMS) 
+
+        if (!ConfigDatabase.Instance.IsEnableUserAccessSMS)
         {
             // 访问短信未启用，返回403 Forbidden状态码
             return StatusCode(403, new ReturnStringData
@@ -101,8 +112,8 @@ public class UserRequestController : ControllerBase
                 Message = "访问短信未启用！"
             });
         }
-        
-        if(!ConfigDatabase.Instance.IsEnableUserMultipleVisitsAtOnceSMS) 
+
+        if (!ConfigDatabase.Instance.IsEnableUserMultipleVisitsAtOnceSMS)
         {
             // 访问短信未启用，返回403 Forbidden状态码
             return StatusCode(403, new ReturnStringData
@@ -111,20 +122,21 @@ public class UserRequestController : ControllerBase
                 Message = "单次请求访问多个短信未启用！"
             });
         }
-        
-        var data = SMSDatabaseManager.Instance.RequestSMS(count, isTimeDescendingOrder);
-    
-        if(data == null) return Ok(new ReturnStringData
-        {
-            Success = false,
-            Message = "获取失败！"
-        });
-        
+
+        var data = SMSDatabase.Instance.RequestSMS(count, isTimeDescendingOrder);
+
+        if (data == null)
+            return Ok(new ReturnStringData
+            {
+                Success = false,
+                Message = "获取失败！"
+            });
+
         // 将data对象转换为JSON字符串
         var jsonData = JsonSerializer.Serialize(data);
-    
+
         var encryptData = NetworkEncryption.Instance.Encrypt(jsonData, out var aesIv);
-        
+
         return Ok(new ReturnStringData
         {
             Success = true,
@@ -142,7 +154,7 @@ public class UserRequestController : ControllerBase
     public IActionResult DisableSMS([FromBody] UserRequestStringData request)
     {
         ConfigDatabase.Instance.UserApiAccessCount++;
-    
+
         // 解密请求数据
         if (!UserAccessVerification(request))
         {
@@ -152,20 +164,21 @@ public class UserRequestController : ControllerBase
                 Message = "访问验证未通过！"
             });
         }
-        
-        if (string.IsNullOrEmpty(request.Data)) return BadRequest(new ReturnDataBase
-        {
-            Success = false,
-            Message = "数据不能为空！"
-        });
 
-        if (!SMSDatabaseManager.Instance.SetSMSIsEnable(request.Data, false)) 
+        if (string.IsNullOrEmpty(request.Data))
+            return BadRequest(new ReturnDataBase
+            {
+                Success = false,
+                Message = "数据不能为空！"
+            });
+
+        if (!SMSDatabase.Instance.SetSMSIsEnable(request.Data, false))
             return Ok(new ReturnDataBase
             {
                 Success = false,
                 Message = "禁用失败！"
             });
-        
+
         return Ok(new ReturnDataBase
         {
             Success = true,
@@ -181,7 +194,7 @@ public class UserRequestController : ControllerBase
     public IActionResult DeleteSMS([FromBody] UserRequestStringData request)
     {
         ConfigDatabase.Instance.UserApiAccessCount++;
-    
+
         // 解密请求数据
         if (!UserAccessVerification(request))
         {
@@ -191,20 +204,21 @@ public class UserRequestController : ControllerBase
                 Message = "访问验证未通过！"
             });
         }
-        
-        if (string.IsNullOrEmpty(request.Data)) return BadRequest(new ReturnDataBase
-        {
-            Success = false,
-            Message = "数据不能为空！"
-        });
 
-        if (!SMSDatabaseManager.Instance.DeleteSMS(request.Data)) 
+        if (string.IsNullOrEmpty(request.Data))
+            return BadRequest(new ReturnDataBase
+            {
+                Success = false,
+                Message = "数据不能为空！"
+            });
+
+        if (!SMSDatabase.Instance.DeleteSMS(request.Data))
             return Ok(new ReturnDataBase
             {
                 Success = false,
                 Message = "删除失败！"
             });
-        
+
         return Ok(new ReturnDataBase
         {
             Success = true,

@@ -1,18 +1,27 @@
+using LiteDB;
+
 namespace DatabaseCore;
 
 // 数据库用户操作
 // ReSharper disable once InconsistentNaming
-public partial class SMSDatabaseManager
+public partial class SMSDatabase
 {
     /// <summary>
     /// 请求短信
     /// </summary>
     /// <param name="count">请求的短信数量</param>
     /// <param name="isTimeDescendingOrder">是否按时间降序排列，默认为false（升序）</param>
+    /// <param name="accessRestriction">访问限制</param>
+    /// <param name="isMaxMode">访问限制模式</param>
     /// <returns>短信数据列表</returns>
     // ReSharper disable once InconsistentNaming
     // ReSharper disable once MemberCanBePrivate.Global
-    public List<SMSDatabaseData>? RequestSMS(int count, bool isTimeDescendingOrder = false)
+    public List<SMSDatabaseData>? RequestSMS(
+        int count,
+        bool isTimeDescendingOrder = false,
+        int accessRestriction = 0,
+        bool isMaxMode = false
+    )
     {
         try
         {
@@ -20,9 +29,22 @@ public partial class SMSDatabaseManager
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
 
-                // 根据isTimeDescendingOrder参数决定排序方向
-                var query = col.Query()
-                    .Where(x => x.IsEnable == true); // 添加筛选条件
+                ILiteQueryable<SMSDatabaseData> query;
+
+                // 根据accessRestriction和isMaxMode参数构建查询条件
+                if (accessRestriction <= 0)
+                {
+                    // 无访问限制时，只筛选启用的短信
+                    query = col.Query()
+                        .Where(x => x.IsEnable == true);
+                }
+                else
+                {
+                    // 有访问限制时，根据isMaxMode决定筛选条件
+                    query = isMaxMode
+                        ? col.Query().Where(x => x.IsEnable == true && x.AccessCount > accessRestriction)
+                        : col.Query().Where(x => x.IsEnable == true && x.AccessCount < accessRestriction);
+                }
 
                 // 按最后访问时间排序，根据isTimeDescendingOrder参数决定升序或降序
                 query = isTimeDescendingOrder
@@ -55,9 +77,13 @@ public partial class SMSDatabaseManager
     /// 请求短信
     /// </summary>
     // ReSharper disable once InconsistentNaming
-    public string? RequestSMS(bool isTimeDescendingOrder = false)
+    public string? RequestSMS(
+        bool isTimeDescendingOrder = false,
+        int accessRestriction = 0,
+        bool isMaxMode = false
+    )
     {
-        var smsList = RequestSMS(1, isTimeDescendingOrder);
+        var smsList = RequestSMS(1, isTimeDescendingOrder, accessRestriction, isMaxMode);
         return smsList?.FirstOrDefault()?.Content;
     }
 }

@@ -21,6 +21,11 @@ public class SMSDatabaseData(string content)
     public string Content { get; set; } = content;
     
     /// <summary>
+    /// 短信分组 ID
+    /// </summary>
+    public ObjectId? GroupId { get; set; }
+    
+    /// <summary>
     /// 是否启用
     /// </summary>
     public bool IsEnable { get; set; } = true;

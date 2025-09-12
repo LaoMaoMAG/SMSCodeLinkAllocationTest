@@ -6,5 +6,5 @@ public class Config
     /// WebAPI 服务器地址
     /// </summary>
     // ReSharper disable once InconsistentNaming
-    public static string WebAPIServer { get; private set; } = "https://zhfp.zhan-hun.com";
+    public static string WebAPIServer { get; private set; } = "https://yxfp.zhan-hun.com";
 }

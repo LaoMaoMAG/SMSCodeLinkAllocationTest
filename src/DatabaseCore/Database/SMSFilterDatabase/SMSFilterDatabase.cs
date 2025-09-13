@@ -40,6 +40,9 @@ public partial class SMSFilterDatabase
         // 创建数据表并设置索引
         var collection = _db.GetCollection<SMSFilterDatabaseData>(GroupConfigTableName);
         collection.EnsureIndex(x => x.Id, true); // 设置唯一索引
+
+        // 更新所有缓存数据
+        UpdateAllCacheData();
     }
     
     /// <summary>
@@ -116,7 +119,7 @@ public partial class SMSFilterDatabase
     /// <summary>
     /// 更新所有缓存数据
     /// </summary>
-    public void UpdateAllCacheData()
+    private void UpdateAllCacheData()
     {
         _cacheData.Clear();
         var dataList = GetFilterListData();
@@ -127,6 +130,7 @@ public partial class SMSFilterDatabase
     /// <summary>
     /// 获取筛选器数据
     /// </summary>
+    // ReSharper disable once MemberCanBePrivate.Global
     public SMSFilterDatabaseData? GetFilterData(ObjectId id)
     {
         try

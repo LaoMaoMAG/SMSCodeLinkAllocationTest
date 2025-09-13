@@ -48,7 +48,7 @@ public partial class SMSFilterDatabase
     /// <summary>
     /// 新增筛选器
     /// </summary>
-    public bool NewFilter(string name ,SMSFilterDatabaseData data)
+    public bool NewFilter(SMSFilterDatabaseData data)
     {
         try
         {
@@ -82,10 +82,9 @@ public partial class SMSFilterDatabase
     /// <summary>
     /// 修改筛选器
     /// </summary>
-    /// <param name="id"></param>
     /// <param name="data"></param>
     /// <returns></returns>
-    public bool UpdateFilter(ObjectId id, SMSFilterDatabaseData data)
+    public bool UpdateFilter(SMSFilterDatabaseData data)
     {
         try
         {

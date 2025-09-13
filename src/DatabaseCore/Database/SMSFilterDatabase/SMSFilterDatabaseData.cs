@@ -6,12 +6,18 @@ namespace DatabaseCore;
 /// 短信过滤数据库数据
 /// </summary>
 // ReSharper disable once InconsistentNaming
-public class SMSFilterDatabaseData(ObjectId id)
+// ReSharper disable once ClassNeverInstantiated.Global
+public class SMSFilterDatabaseData(string name)
 {
     /// <summary>
     /// 数据库ID
     /// </summary>
-    public ObjectId Id { get; set; } = id;
+    public ObjectId Id { get; set; } = null!;
+    
+    /// <summary>
+    /// 名称
+    /// </summary>
+    public string Name { get; set; } = name;
     
     /// <summary>
     /// 是否启用
@@ -65,7 +71,18 @@ public class SMSFilterDatabaseData(ObjectId id)
 // ReSharper disable once InconsistentNaming
 public enum EnumSMSFilterEnabledStatus
 {
+    /// <summary>
+    /// 启用
+    /// </summary>
     Enabled,
+    
+    /// <summary>
+    /// 禁用
+    /// </summary>
     Disabled,
+    
+    /// <summary>
+    /// 所有
+    /// </summary>
     All
 }

@@ -1,4 +1,4 @@
-@page "/"
+@page "/Admin"
 
 @inject HttpClient Http
 @inject NavigationManager Navigation
@@ -52,7 +52,7 @@
             var status = await response.Content.ReadFromJsonAsync<ReturnDataBase>();
             Console.WriteLine($"Status Success: {status.Success}");
             if (status is { Success: false }) // 重定向到初始化页面
-                Navigation.NavigateTo("/InitAdmin");
+                Navigation.NavigateTo("/Admin/InitAdmin");
             
             _loadingText = "正在验证当前账户";
             StateHasChanged(); // 添加这一行来触发UI更新
@@ -71,12 +71,12 @@
             });
             if (accountAuthenticationResponse.IsSuccessStatusCode)
             {
-                Navigation.NavigateTo("/Home", forceLoad: true);
+                Navigation.NavigateTo("/Admin/Home", forceLoad: true);
                 return;
             }
             
             // 跳转到登录页面
-            Navigation.NavigateTo("/Login");
+            Navigation.NavigateTo("/Admin/Login");
         }
         catch (Exception ex)
         {

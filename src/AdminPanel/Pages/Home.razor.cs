@@ -92,7 +92,7 @@ public partial class Home : ComponentBase, IDisposable
         await _LogoutDialog.Hide();
         
         // 重定向到登录页面
-        NavigationManager.NavigateTo("/login");
+        NavigationManager.NavigateTo("/Admin/login");
     }
     
     /// <summary>

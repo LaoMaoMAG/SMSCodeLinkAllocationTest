@@ -5,9 +5,14 @@
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+
+        <PublishDir>./publish</PublishDir>
+        <PublishTrimmed>false</PublishTrimmed>
+        <PublishSingleFile>false</PublishSingleFile>
     </PropertyGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.19" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.19"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2"/>
     </ItemGroup>
@@ -19,6 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\AdminPanel\AdminPanel.csproj" />
       <ProjectReference Include="..\APIModes\APIModes.csproj" />
       <ProjectReference Include="..\DatabaseCore\DatabaseCore.csproj" />
     </ItemGroup>

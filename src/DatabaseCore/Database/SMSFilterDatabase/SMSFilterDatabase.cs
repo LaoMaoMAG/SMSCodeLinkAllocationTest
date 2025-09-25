@@ -47,7 +47,7 @@ public partial class SMSFilterDatabase
     
     /// <summary>
     /// 新增筛选器
-    /// </summary>
+    /// </summary> 
     public bool NewFilter(SMSFilterDatabaseData data)
     {
         try
@@ -138,7 +138,7 @@ public partial class SMSFilterDatabase
             var col = _db.GetCollection<SMSFilterDatabaseData>(GroupConfigTableName);
             return col.FindOne(x => x.Id.Equals(id));
         }
-        catch (Exception e)
+        catch (Exception)
         {
             return null;
         }

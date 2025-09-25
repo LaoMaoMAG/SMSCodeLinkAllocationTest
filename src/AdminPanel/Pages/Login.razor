@@ -1,5 +1,5 @@
-@page "/Login"
-@page "/InitAdmin"
+@page "/Admin/Login"
+@page "/Admin/InitAdmin"
 @using APIModes.RequestModes
 @using APIModes.ReturnModes
 
@@ -445,7 +445,7 @@
                 if (statusData.Success)
                 {
                     await JsRuntime.InvokeVoidAsync("alert", "账户初始化成功！");
-                    Navigation.NavigateTo("/Login", forceLoad: true);
+                    Navigation.NavigateTo("/Admin/Login", forceLoad: true);
                 }
                 else
                 {
@@ -492,7 +492,7 @@
                     await cookieService.SetCookie("password", Password, ExpireDays);
                 }
 
-                Navigation.NavigateTo("/Home", forceLoad: true);
+                Navigation.NavigateTo("/Admin/Home", forceLoad: true);
             }
             else
             {

@@ -7,7 +7,7 @@ namespace WebAPI.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public partial class AdminRequest : ControllerBase
+public partial class AdminRequestController : ControllerBase
 {
     /// <summary>
     /// 验证管理员账号

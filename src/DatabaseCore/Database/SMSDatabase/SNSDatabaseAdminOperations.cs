@@ -2,7 +2,7 @@ namespace DatabaseCore;
 
 // 数据库管理操作
 // ReSharper disable once InconsistentNaming
-public partial class SMSDatabase
+public sealed partial class SMSDatabase
 {
     /// <summary>
     /// 添加短信
@@ -22,8 +22,9 @@ public partial class SMSDatabase
                     {
                         col.Insert(new SMSDatabaseData(content));
                     }
-                    catch (Exception)
+                    catch (Exception e)
                     {
+                        Console.WriteLine(e);
                         // ignored
                     }
                 }
@@ -51,6 +52,7 @@ public partial class SMSDatabase
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
                 col.DeleteMany(x => content.Contains(x.Content)); // 修改这里
+                col.EnsureIndex(x => x.Content, true); // 设置唯一索引
             });
             return true;
         }
@@ -83,9 +85,9 @@ public partial class SMSDatabase
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
                 col.DeleteAll();
+                col.EnsureIndex(x => x.Content, true); // 设置唯一索引
                 return true;
             });
-            return true;
         }
         catch (InvalidOperationException)
         {
@@ -113,10 +115,10 @@ public partial class SMSDatabase
                     .ToList();
                 return data;
             });
-            return null;
         }
-        catch (InvalidOperationException)
+        catch (InvalidOperationException e)
         {
+            Console.WriteLine(e);
             return null;
         }
     }

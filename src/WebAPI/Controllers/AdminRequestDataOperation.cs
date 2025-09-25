@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers;
 
-public partial class AdminRequest
+public partial class AdminRequestController
 {
     /// <summary>
     /// 添加短信

@@ -553,6 +553,7 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    
 }
 
 .home-table-header .home-table-cell {
@@ -1346,3 +1347,9 @@
     }
 }
 
+.home-table-cell {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 600px; /* 可根据实际需要调整宽度 */
+}

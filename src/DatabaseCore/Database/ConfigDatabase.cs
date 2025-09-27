@@ -90,4 +90,13 @@ public class ConfigDatabase : KvDatabaseBase
         get => GetValue<string?>("user_access_encryption_key");
         set => SetValue("user_access_encryption_key", value);
     }
+
+    /// <summary>
+    /// 管理员面板名称
+    /// </summary>
+    public string? AdminPanelName
+    {
+        get => GetValue<string?>("admin_panel_name");
+        set => SetValue("admin_panel_name", value);
+    }
 }

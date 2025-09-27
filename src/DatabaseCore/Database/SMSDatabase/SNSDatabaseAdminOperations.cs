@@ -15,21 +15,21 @@ public sealed partial class SMSDatabase
             Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                col.EnsureIndex(x => x.Content, true);
+            
+                // 批量插入，减少事务开销
+                var batchData = contentList
+                    .Where(content => !string.IsNullOrWhiteSpace(content))
+                    .Distinct() // 去重，避免唯一索引冲突
+                    .Select(content => new SMSDatabaseData(content))
+                    .ToList();
                 
-                foreach (var content in contentList)
+                if (batchData.Count > 0)
                 {
-                    try
-                    {
-                        col.Insert(new SMSDatabaseData(content));
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        // ignored
-                    }
+                    col.InsertBulk(batchData); // 使用批量插入
                 }
             });
-            return true; // 插入成功
+            return true;
         }
         catch (InvalidOperationException)
         {
@@ -51,8 +51,8 @@ public sealed partial class SMSDatabase
             Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
-                col.DeleteMany(x => content.Contains(x.Content)); // 修改这里
                 col.EnsureIndex(x => x.Content, true); // 设置唯一索引
+                col.DeleteMany(x => content.Contains(x.Content));
             });
             return true;
         }
@@ -85,7 +85,6 @@ public sealed partial class SMSDatabase
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
                 col.DeleteAll();
-                col.EnsureIndex(x => x.Content, true); // 设置唯一索引
                 return true;
             });
         }
@@ -109,6 +108,7 @@ public sealed partial class SMSDatabase
             return Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                col.EnsureIndex(x => x.Content, true); // 设置唯一索引
                 var data = col.Find(x => true)
                     .Skip((pageIndex - 1) * pageSize)
                     .Take(pageSize)
@@ -199,6 +199,7 @@ public sealed partial class SMSDatabase
             return Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                col.EnsureIndex(x => x.Content, true); // 设置唯一索引
                 // 查找需要禁用的短信并更新其 IsEnable 状态
                 var smsToUpdate = col.Find(x => content.Contains(x.Content)).ToList();
                 foreach (var sms in smsToUpdate)
@@ -241,6 +242,7 @@ public sealed partial class SMSDatabase
             return Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                col.EnsureIndex(x => x.Content, true); // 设置唯一索引
                 return col.FindAll().Select(x => x.Content).ToList();
             });
         }

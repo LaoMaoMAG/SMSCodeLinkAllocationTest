@@ -28,6 +28,7 @@ public sealed partial class SMSDatabase
             return Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                col.EnsureIndex(x => x.Content, true); // 设置唯一索引
 
                 ILiteQueryable<SMSDatabaseData> query;
 

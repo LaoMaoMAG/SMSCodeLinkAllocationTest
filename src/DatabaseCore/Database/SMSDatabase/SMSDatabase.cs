@@ -11,34 +11,9 @@ namespace DatabaseCore;
 public partial class SMSDatabase
 {
     /// <summary>
-    /// 静态锁，用于确保单线程操作
-    /// </summary>
-    private static readonly object Lock = new();
-
-    /// <summary>
-    /// 用于跟踪当前线程是否已经持有锁，防止死锁
-    /// </summary>
-    private static readonly AsyncLocal<bool> IsHoldingLock = new();
-
-    /// <summary>
-    /// 单例实例
-    /// </summary>
-    private static SMSDatabase? _instance;
-
-    /// <summary>
-    /// 数据库连接
-    /// </summary>
-    private readonly LiteDatabase _db;
-
-    /// <summary>
-    /// 标记对象是否已被释放
-    /// </summary>
-    private bool _disposed = false;
-
-    /// <summary>
     /// 获取单例实例
     /// </summary>
-    public static SMSDatabase Instance => _instance ?? CreateInstance();
+    public static SMSDatabase Instance => new ();
 
     /// <summary>
     /// 短信数据库表名
@@ -47,31 +22,29 @@ public partial class SMSDatabase
     private const string SMSTableName = "sms";
 
     /// <summary>
+    /// 数据库连接字符串
+    /// </summary>
+    private readonly ConnectionString _connectionString;
+    
+    /// <summary>
+    /// 互斥锁对象
+    /// </summary>
+    private readonly object _lock = new ();
+
+    /// <summary>
     /// 私有构造函数
     /// </summary>
     private SMSDatabase()
     {
         // 连接数据库
-        var connectionString = new ConnectionString(DatabaseCoreConfig.LiteDbFilePath)
+        _connectionString = new ConnectionString(DatabaseCoreConfig.LiteDbFilePath)
         {
             Connection = ConnectionType.Direct // 直接模式，适合单进程
         };
-        _db = new LiteDatabase(connectionString);
-
+        using var db = new LiteDatabase(_connectionString);
         // 创建数据表并设置索引
-        var collection = _db.GetCollection<SMSDatabaseData>(SMSTableName);
+        var collection = db.GetCollection<SMSDatabaseData>(SMSTableName);
         collection.EnsureIndex(x => x.Content, true); // 设置唯一索引
-    }
-
-    /// <summary>
-    /// 线程安全地创建单例实例
-    /// </summary>
-    private static SMSDatabase CreateInstance()
-    {
-        lock (Lock)
-        {
-            return _instance ??= new SMSDatabase();
-        }
     }
 
     /// <summary>
@@ -83,35 +56,18 @@ public partial class SMSDatabase
     /// <exception cref="InvalidOperationException"></exception>
     private T Execute<T>(Func<LiteDatabase, T> operation)
     {
-        // 防止同一线程重复获取锁导致死锁
-        if (IsHoldingLock.Value)
+        using var db = new LiteDatabase(_connectionString);
+        try
         {
-            try
+            lock (_lock)
             {
-                return operation(_db);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("数据库操作失败", ex);
+                return operation(db);
             }
         }
-
-        lock (Lock)
+        catch (Exception e)
         {
-            IsHoldingLock.Value = true;
-            try
-            {
-                return operation(_db);
-            }
-            catch (Exception ex)
-            {
-                // 日志记录建议在这里添加
-                throw new InvalidOperationException("数据库操作失败", ex);
-            }
-            finally
-            {
-                IsHoldingLock.Value = false;
-            }
+            Console.WriteLine($"数据库操作发生异常：{e}");
+            throw;
         }
     }
 
@@ -122,36 +78,18 @@ public partial class SMSDatabase
     /// <exception cref="InvalidOperationException"></exception>
     private void Execute(Action<LiteDatabase> operation)
     {
-        // 防止同一线程重复获取锁导致死锁
-        if (IsHoldingLock.Value)
+        using var db = new LiteDatabase(_connectionString);
+        try
         {
-            try
+            lock (_lock)
             {
-                operation(_db);
+                operation(db);
             }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("数据库操作失败", ex);
-            }
-
-            return;
         }
-
-        lock (Lock)
+        catch (Exception e)
         {
-            IsHoldingLock.Value = true;
-            try
-            {
-                operation(_db);
-            }
-            catch (Exception ex)
-            {
-                throw new InvalidOperationException("数据库操作失败", ex);
-            }
-            finally
-            {
-                IsHoldingLock.Value = false;
-            }
+            Console.WriteLine($"数据库操作发生异常：{e}");
+            throw;
         }
     }
 
@@ -166,6 +104,7 @@ public partial class SMSDatabase
             Execute(db =>
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
+                col.EnsureIndex(x => x.Content, true); // 设置唯一索引
                 col.Insert(new SMSDatabaseData(content));
             });
             return true; // 插入成功

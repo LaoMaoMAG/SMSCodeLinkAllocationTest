@@ -1,6 +1,8 @@
 @page "/Admin/Home"
 @using AdminPanel.Components
 
+<PageTitle>@(string.IsNullOrWhiteSpace(_adminPanelName) ? "接码分配管理面板" : _adminPanelName)</PageTitle>
+
 <div class="home-container">
     
     <!-- 顶部提示框 -->
@@ -66,7 +68,9 @@
                         <polyline points="22 4 12 14.01 9 11.01"></polyline>
                     </svg>
                 </div>
-                <b class="home-title">接码分配管理面板</b>
+                <b class="home-title">
+                    @(string.IsNullOrWhiteSpace(_adminPanelName) ? "接码分配管理面板" : _adminPanelName)
+                </b>
             </div>
 
             <div class="home-search-container">
@@ -230,6 +234,13 @@
                         <Switch @bind-Value="_isEnableUserMultipleVisitsAtOnceSMS"/>
                     </div>
 
+                    <div class="home-config-item">
+                        <span class="home-config-label">面板名称</span>
+                        <div class="home-config-input-group">
+                            <input type="text" class="home-input-number" style="width: 245px;" @bind="_adminPanelName"/>
+                        </div>
+                    </div>
+                    
                     <div class="home-config-item">
                         <span class="home-config-label">接码密钥</span>
                         <div class="home-config-input-group">

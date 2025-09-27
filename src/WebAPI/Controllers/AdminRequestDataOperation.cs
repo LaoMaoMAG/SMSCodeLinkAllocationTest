@@ -179,6 +179,7 @@ public partial class AdminRequestController
                 IsEnableUserMultipleVisitsAtOnceSMS = ConfigDatabase.Instance.IsEnableUserMultipleVisitsAtOnceSMS,
                 UserAccessKey = ConfigDatabase.Instance.UserAccessKey,
                 UserAccessEncryptionKey = ConfigDatabase.Instance.UserAccessEncryptionKey,
+                AdminPanelName = ConfigDatabase.Instance.AdminPanelName
             },
         });
     }
@@ -202,6 +203,7 @@ public partial class AdminRequestController
         ConfigDatabase.Instance.IsEnableUserMultipleVisitsAtOnceSMS = request.Data.IsEnableUserMultipleVisitsAtOnceSMS;
         ConfigDatabase.Instance.UserAccessKey = request.Data.UserAccessKey;
         ConfigDatabase.Instance.UserAccessEncryptionKey = request.Data.UserAccessEncryptionKey;
+        ConfigDatabase.Instance.AdminPanelName = request.Data.AdminPanelName;
         
         return Ok(new ReturnDataBase
         {

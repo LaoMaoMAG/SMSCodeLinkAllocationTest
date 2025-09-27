@@ -27,4 +27,9 @@ public class UserSMSUserSettingsData
     /// 用户访问SMS加密密钥
     /// </summary>
     public string? UserAccessEncryptionKey { get; set; }
+    
+    /// <summary>
+    /// 管理员面板名称
+    /// </summary>
+    public string? AdminPanelName { get; set; }
 }

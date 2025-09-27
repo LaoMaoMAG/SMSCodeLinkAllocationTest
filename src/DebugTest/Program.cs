@@ -1,4 +1,6 @@
-﻿namespace DebugTest;
+﻿using System.Text.Json;
+
+namespace DebugTest;
 
 internal static class Program
 {
@@ -6,33 +8,52 @@ internal static class Program
         {
             Console.WriteLine("开始并发测试...");
 
-            var url = "https://jmfp.zhan-hun.com/UserRequest/RequestSingleSMS/";
-            var concurrentRequests = 500;
+            const string url = "http://localhost:5232/UserRequest/RequestSingleSMS";
+            const int concurrentRequests = 10;
             var results = new Dictionary<string, List<int>>();
             var httpClient = new HttpClient();
 
             // 创建并发任务
             var tasks = new Task[concurrentRequests];
-            for (int i = 0; i < concurrentRequests; i++)
+            for (var i = 0; i < concurrentRequests; i++)
             {
-                int requestIndex = i + 1;
+                var requestIndex = i + 1;
                 tasks[i] = Task.Run(async () =>
                 {
                     try
                     {
-                        var response = await httpClient.GetStringAsync(url);
+                        //var response = await httpClient.GetStringAsync(url);
+                        
+                        var response = await httpClient.PostAsync(url, new StringContent("{}", System.Text.Encoding.UTF8, "application/json"));
+                        if (!response.IsSuccessStatusCode)
+                        {
+                            throw new HttpRequestException($"请求失败，状态码: {response.StatusCode}");
+                        }
+                        var responseBody = await response.Content.ReadAsStringAsync();
+                        // Console.WriteLine(JsonDocument.Parse(responseBody));
+                        
+                        var contentType = "APPLICATION/JSON; CHARSET=UTF-8";
+                        var containsJson = contentType.Contains(responseBody, StringComparison.OrdinalIgnoreCase);
+
+                        if (containsJson)
+                        {
+                            throw new Exception("我是 SB 请求头");
+                        }
+
                         
                         // 线程安全地添加结果
                         lock (results)
                         {
-                            if (!results.ContainsKey(response))
+                            if (!results.TryGetValue(responseBody, out var value))
                             {
-                                results[response] = new List<int>();
+                                value = [];
+                                results[responseBody] = value;
                             }
-                            results[response].Add(requestIndex);
+
+                            value.Add(requestIndex);
                             
                             // 输出当前请求的访问次序和是否重复
-                            bool isDuplicate = results[response].Count > 1;
+                            var isDuplicate = value.Count > 1;
                             Console.WriteLine($"第{requestIndex}次请求，返回数据: \"{response}\"，{(isDuplicate ? "重复" : "首次出现")}");
                         }
                     }
@@ -48,15 +69,12 @@ internal static class Program
 
             // 最后总结重复数据情况
             Console.WriteLine("\n=== 重复数据总结 ===");
-            bool hasDuplicates = false;
-            foreach (var kvp in results)
+            var hasDuplicates = false;
+            foreach (var kvp in results.Where(kvp => kvp.Value.Count > 1))
             {
-                if (kvp.Value.Count > 1)
-                {
-                    hasDuplicates = true;
-                    Console.WriteLine($"发现重复数据: \"{kvp.Key}\"");
-                    Console.WriteLine($"重复出现在第 {string.Join(", ", kvp.Value)} 次访问");
-                }
+                hasDuplicates = true;
+                Console.WriteLine($"发现重复数据: \"{kvp.Key}\"");
+                Console.WriteLine($"重复出现在第 {string.Join(", ", kvp.Value)} 次访问");
             }
 
             if (!hasDuplicates)

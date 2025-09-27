@@ -11,6 +11,11 @@ namespace AdminPanel.Pages;
 public partial class Home
 {
     /// <summary>
+    /// 管理员面板名称
+    /// </summary>
+    private string? _adminPanelName;
+    
+    /// <summary>
     /// 用户访问接码设置
     /// </summary>
     // ReSharper disable once InconsistentNaming
@@ -148,6 +153,7 @@ public partial class Home
                 _isEnableUserMultipleVisitsAtOnceSMS = jsonData.Data.IsEnableUserMultipleVisitsAtOnceSMS;
                 _userAccessKey = jsonData.Data.UserAccessKey;
                 _userAccessEncryptionKey = jsonData.Data.UserAccessEncryptionKey;
+                _adminPanelName = jsonData.Data.AdminPanelName;
                 
                 StateHasChanged();
             }
@@ -180,7 +186,8 @@ public partial class Home
                     IsEnableUserAccessSMS = _isEnableUserAccessSMS,
                     IsEnableUserMultipleVisitsAtOnceSMS = _isEnableUserMultipleVisitsAtOnceSMS,
                     UserAccessKey = _userAccessKey,
-                    UserAccessEncryptionKey = _userAccessEncryptionKey
+                    UserAccessEncryptionKey = _userAccessEncryptionKey,
+                    AdminPanelName = _adminPanelName
                 }
             });
 

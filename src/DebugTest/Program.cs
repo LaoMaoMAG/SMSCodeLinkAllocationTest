@@ -9,7 +9,7 @@ internal static class Program
             Console.WriteLine("开始并发测试...");
 
             const string url = "http://localhost:5232/UserRequest/RequestSingleSMS";
-            const int concurrentRequests = 10;
+            const int concurrentRequests = 10000;
             var results = new Dictionary<string, List<int>>();
             var httpClient = new HttpClient();
 

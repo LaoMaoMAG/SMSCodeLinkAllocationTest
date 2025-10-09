@@ -19,9 +19,9 @@ public partial class SMSFilterDatabase
     private const string GroupConfigTableName = "sms_filter";
     
     /// <summary>
-    /// 数据库连接
+    /// 数据库连接字符串
     /// </summary>
-    private readonly LiteDatabase _db;
+    private readonly ConnectionString _connectionString;
     
     /// <summary>
     /// 缓存数据
@@ -34,11 +34,11 @@ public partial class SMSFilterDatabase
     private SMSFilterDatabase()
     { 
         // 连接数据库
-        var connectionString = new ConnectionString(DatabaseCoreConfig.LiteDbFilePath);
-        _db = new LiteDatabase(connectionString);
+        _connectionString = new ConnectionString(DatabaseCoreConfig.LiteDbFilePath);
+        var db = new LiteDatabase(_connectionString);
             
         // 创建数据表并设置索引
-        var collection = _db.GetCollection<SMSFilterDatabaseData>(GroupConfigTableName);
+        var collection = db.GetCollection<SMSFilterDatabaseData>(GroupConfigTableName);
         collection.EnsureIndex(x => x.Id, true); // 设置唯一索引
 
         // 更新所有缓存数据
@@ -52,7 +52,8 @@ public partial class SMSFilterDatabase
     {
         try
         {
-            var collection = _db.GetCollection<SMSFilterDatabaseData>(GroupConfigTableName);
+            using var db = new LiteDatabase(_connectionString);
+            var collection = db.GetCollection<SMSFilterDatabaseData>(GroupConfigTableName);
             collection.Insert(data);
             return true;
         }
@@ -69,7 +70,8 @@ public partial class SMSFilterDatabase
     {
         try
         {
-            var col = _db.GetCollection<SMSFilterDatabaseData>(GroupConfigTableName);
+            using var db = new LiteDatabase(_connectionString);
+            var col = db.GetCollection<SMSFilterDatabaseData>(GroupConfigTableName);
             col.DeleteMany(x => x.Id.Equals(id));
             return true;
         }
@@ -88,7 +90,8 @@ public partial class SMSFilterDatabase
     {
         try
         {
-            var col = _db.GetCollection<SMSFilterDatabaseData>(GroupConfigTableName);
+            using var db = new LiteDatabase(_connectionString);
+            var col = db.GetCollection<SMSFilterDatabaseData>(GroupConfigTableName);
             col.Update(data);
             return true;
         }
@@ -102,11 +105,13 @@ public partial class SMSFilterDatabase
     /// 获取筛选器列表数据
     /// </summary>
     /// <returns></returns>
+    // ReSharper disable once MemberCanBePrivate.Global
     public List<SMSFilterDatabaseData>? GetFilterListData()
     {
         try
         {
-            var col = _db.GetCollection<SMSFilterDatabaseData>(GroupConfigTableName);
+            using var db = new LiteDatabase(_connectionString);
+            var col = db.GetCollection<SMSFilterDatabaseData>(GroupConfigTableName);
             return col.FindAll().ToList();
         }
         catch (Exception)
@@ -134,8 +139,9 @@ public partial class SMSFilterDatabase
     {
         try
         {
+            using var db = new LiteDatabase(_connectionString);
             if (_cacheData.TryGetValue(id, out var data)) return data;
-            var col = _db.GetCollection<SMSFilterDatabaseData>(GroupConfigTableName);
+            var col = db.GetCollection<SMSFilterDatabaseData>(GroupConfigTableName);
             return col.FindOne(x => x.Id.Equals(id));
         }
         catch (Exception)

@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "AdminPanel",
   "resources": {
-    "hash": "sha256-u62mpAnB1LDwwMRG2QVPvdBVBfu2b+9ksHP1la4967o=",
+    "hash": "sha256-78d+z+TA4khtwvMPAbBjhl9JRhuFGP5fGqx0iZb1nZA=",
     "jsModuleNative": {
       "dotnet.native.js": "sha256-O/NCYcAN9uPocD7ns7AzF/cqx7f5vL1PTJCQs0vEXyk="
     },
@@ -18,9 +18,9 @@
     },
     "coreAssembly": {},
     "assembly": {
-      "AdminPanel.wasm": "sha256-PrDAFICnwxZ3gRIAyzevYXY0+UxuvYCLQOUpQk58gmk=",
-      "APIModes.wasm": "sha256-Bzyt64bY+VYEug/E6xmgj7HbxkGFeVyL00EQ7xoukMU=",
-      "DatabaseCore.wasm": "sha256-B8fVBQdzoWPUBFH69LK3p1g2WrSqcymbY5TupcSkECQ=",
+      "AdminPanel.wasm": "sha256-dO82/wHFKAkDYzo2vKgs/dB3jGwGW2PDqRIkvmPKtK0=",
+      "APIModes.wasm": "sha256-2grf5WFvrs1R3ifViT1z6gZARANfL8t76gbrPOhqAJc=",
+      "DatabaseCore.wasm": "sha256-LsRKjUDaRZ3mofppRH+IeQMb1/NBNN7Pyn2/lT1gwS8=",
       "LiteDB.wasm": "sha256-buGOjQMkIH0b9MJXL7vreuhTGz91V2L4lG4RURDmuzM=",
       "Microsoft.AspNetCore.Components.wasm": "sha256-WbU0jTClP87gIcqsxjAcj1qn99I+2oq+saVXe6xCbfM=",
       "Microsoft.AspNetCore.Components.Web.wasm": "sha256-+KSCUhpVCXHROpRUJH9wzQ+raVNlFcApZ04W9aRpZi8=",

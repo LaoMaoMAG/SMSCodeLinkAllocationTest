@@ -32,6 +32,9 @@ public sealed partial class SMSDatabase
 
                 ILiteQueryable<SMSDatabaseData> query;
 
+                query = col.Query();
+                
+                /*
                 // 根据accessRestriction和isMaxMode参数构建查询条件
                 if (accessRestriction <= 0)
                 {
@@ -46,6 +49,7 @@ public sealed partial class SMSDatabase
                         ? col.Query().Where(x => x.IsEnable == true && x.AccessCount > accessRestriction)
                         : col.Query().Where(x => x.IsEnable == true && x.AccessCount < accessRestriction);
                 }
+                */
 
                 // 按最后访问时间排序，根据isTimeDescendingOrder参数决定升序或降序
                 query = isTimeDescendingOrder

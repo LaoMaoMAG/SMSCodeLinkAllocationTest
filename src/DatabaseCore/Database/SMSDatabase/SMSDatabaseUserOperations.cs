@@ -1,3 +1,4 @@
+using DatabaseCore.DatabaseBase;
 using LiteDB;
 
 namespace DatabaseCore;
@@ -29,9 +30,10 @@ public sealed partial class SMSDatabase
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
                 col.EnsureIndex(x => x.Content, true); // 设置唯一索引
-
+                
+                // ReSharper disable once JoinDeclarationAndInitializer
                 ILiteQueryable<SMSDatabaseData> query;
-
+                
                 query = col.Query();
                 
                 /*
@@ -50,12 +52,12 @@ public sealed partial class SMSDatabase
                         : col.Query().Where(x => x.IsEnable == true && x.AccessCount < accessRestriction);
                 }
                 */
-
+                
                 // 按最后访问时间排序，根据isTimeDescendingOrder参数决定升序或降序
                 query = isTimeDescendingOrder
                     ? query.OrderByDescending(x => x.LastAccessTime)
                     : query.OrderBy(x => x.LastAccessTime);
-
+                
                 var smsList = query
                     .Limit(count)
                     .ToList();

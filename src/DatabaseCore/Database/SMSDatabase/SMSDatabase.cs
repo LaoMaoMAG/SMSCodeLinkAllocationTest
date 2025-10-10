@@ -23,6 +23,12 @@ public partial class SMSDatabase : SynchronizeLockDatabaseBase<SMSDatabaseData>
     private const string SMSTableName = "sms";
     
     /// <summary>
+    /// 数据库文件路径
+    /// </summary>
+    // ReSharper disable once InconsistentNaming
+    protected override string DatabaseFilePath { get; init; } = DatabaseCoreConfig.LiteDbFilePath;
+    
+    /// <summary>
     /// 私有构造函数
     /// </summary>
     private SMSDatabase()

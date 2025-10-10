@@ -10,8 +10,8 @@ public abstract class SynchronizeLockDatabaseBase<T>
     /// <summary>
     /// 数据库文件路径
     /// </summary>
-    // ReSharper disable once InconsistentNaming
-    private const string DatabaseFilePath = null!;
+    // ReSharper disable once UnusedMember.Global
+    protected abstract string DatabaseFilePath { get; init; }
     
     /// <summary>
     /// 数据库连接字符串

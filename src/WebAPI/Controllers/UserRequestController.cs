@@ -29,9 +29,7 @@ public class UserRequestController : ControllerBase
     // ReSharper disable once InconsistentNaming
     public IActionResult RequestSingleSMS(
         [FromBody] UserRequestDataBase request,
-        [FromQuery] bool isTimeDescendingOrder = false,
-        [FromQuery] int accessRestriction = 0,
-        [FromQuery] bool isMaxMode = false
+        [FromQuery] bool isTimeDescendingOrder = false
     )
     {
         ConfigDatabase.Instance.UserApiAccessCount++;
@@ -56,7 +54,7 @@ public class UserRequestController : ControllerBase
             });
         }
 
-        var data = SMSDatabase.Instance.RequestSMS(isTimeDescendingOrder, accessRestriction, isMaxMode);
+        var data = SMSDatabase.Instance.RequestSMS(isTimeDescendingOrder);
 
         if (data == null)
             return Ok(new ReturnStringData
@@ -224,5 +222,20 @@ public class UserRequestController : ControllerBase
             Success = true,
             Message = "删除成功！"
         });
+    }
+
+    [HttpGet("Test")]
+    public string Test()
+    {
+        var data = SMSDatabase.Instance.RequestSMS(8000, false, new SMSFilterDatabaseData("aaa")
+        {
+            EnabledStatus = EnumSMSFilterEnabledStatus.Disabled
+        });
+
+        var str = "";
+        
+        if (data != null) str = data.Aggregate("", (current, item) => current + item.Content + "\n");
+        
+        return str;
     }
 }

@@ -9,7 +9,7 @@ namespace DatabaseCore;
 /// 数据库管理器
 /// </summary>
 // ReSharper disable once InconsistentNaming
-public partial class SMSDatabase : SynchronizeLockDatabaseBase<SMSDatabaseData>
+public partial class SMSDatabase : SynchronizeLockDatabaseBase
 {
     /// <summary>
     /// 获取单例实例

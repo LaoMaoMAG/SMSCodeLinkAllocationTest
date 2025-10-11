@@ -16,17 +16,20 @@ public sealed partial class SMSDatabase
             {
                 var col = db.GetCollection<SMSDatabaseData>(SMSTableName);
                 col.EnsureIndex(x => x.Content, true);
-            
-                // 批量插入，减少事务开销
-                var batchData = contentList
-                    .Where(content => !string.IsNullOrWhiteSpace(content))
-                    .Distinct() // 去重，避免唯一索引冲突
-                    .Select(content => new SMSDatabaseData(content))
-                    .ToList();
-                
-                if (batchData.Count > 0)
+
+                // 循环插入
+                foreach (var content in contentList.Distinct())
                 {
-                    col.InsertBulk(batchData); // 使用批量插入
+                    if (string.IsNullOrWhiteSpace(content)) continue;
+                    var smsData = new SMSDatabaseData(content);
+                    try
+                    {
+                        col.Insert(smsData);
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"插入新的短信数据发生异常：{e.Message}");
+                    }
                 }
             });
             return true;

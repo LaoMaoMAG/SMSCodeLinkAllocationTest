@@ -112,7 +112,8 @@ public abstract class KvDatabaseBase
         public T? Value { get; set; }
 
         public DateTime CreateTime { get; } = DateTime.Now;
-
+        
+        // ReSharper disable once UnusedAutoPropertyAccessor.Global
         public DateTime UpdateTime { get; set; } = DateTime.Now;
     }
 }

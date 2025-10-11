@@ -72,7 +72,7 @@ public class ConfigDatabase : KvDatabaseBase
         }
         set => SetValue("is_enable_user_multiple_visits_at_once", value);
     }
-
+    
     /// <summary>
     /// 用户访问密钥
     /// </summary>
@@ -81,7 +81,7 @@ public class ConfigDatabase : KvDatabaseBase
         get => GetValue<string?>("user_access_key");
         set => SetValue("user_access_key", value);
     }
-
+    
     /// <summary>
     /// 用户访问加密密钥
     /// </summary>

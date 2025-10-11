@@ -5,7 +5,7 @@ namespace DatabaseCore.DatabaseBase;
 /// <summary>
 /// 同步锁数据库基础类
 /// </summary>
-public abstract class SynchronizeLockDatabaseBase<T>
+public abstract class SynchronizeLockDatabaseBase
 {
     /// <summary>
     /// 数据库文件路径
@@ -40,10 +40,10 @@ public abstract class SynchronizeLockDatabaseBase<T>
     /// 执行数据库操作（同步锁）
     /// </summary>
     /// <param name="operation"></param>
-    /// <typeparam name="TT"></typeparam>
+    /// <typeparam name="T"></typeparam>
     /// <returns></returns>
     /// <exception cref="InvalidOperationException"></exception>
-    protected TT Execute<TT>(Func<LiteDatabase, TT> operation)
+    protected T Execute<T>(Func<LiteDatabase, T> operation)
     {
         using var db = new LiteDatabase(ConnectionString);
         try
